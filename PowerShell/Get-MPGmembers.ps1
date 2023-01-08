@@ -19,7 +19,7 @@
 Import-Module ActiveRolesManagementShell
 Import-Module AzureAd
 
-Connect-QADService -Proxy vmww4617
+Connect-QADService -Proxy AZR-EUS2W7271.mars-ad.net
 Connect-AzureAD
 
 $DomainMPGFilter = '(&(objectClass=group)(AdminCount=1) (( | (cn=Administrators)(cn=Enterprise Admins)(cn=Domain Admins)(cn=Backup Operators)(cn=Server Operators)(cn=Replicator)(cn=Account Operators)(cn=Domain Controllers)(cn=Read-only Domain Controllers)(cn=Schema Admins)(cn=Print Operators)(cn=Key Admins)(cn=Enterprise Key Admins))))'
