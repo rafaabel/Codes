@@ -19,12 +19,12 @@
 Import-Module ActiveRolesManagementShell
 Import-Module AzureAd
 
-Connect-QADService -Proxy AZR-EUS2W7271.mars-ad.net
+Connect-QADService -Proxy "ARS server"
 Connect-AzureAD
 
 $DomainMPGFilter = '(&(objectClass=group)(AdminCount=1) (( | (cn=Administrators)(cn=Enterprise Admins)(cn=Domain Admins)(cn=Backup Operators)(cn=Server Operators)(cn=Replicator)(cn=Account Operators)(cn=Domain Controllers)(cn=Read-only Domain Controllers)(cn=Schema Admins)(cn=Print Operators)(cn=Key Admins)(cn=Enterprise Key Admins))))'
-$SearchRoot = 'MARS-AD.NET/', 'RCAD.NET/', 'MFG.MARS/', 'AM.MFG.MARS/', 'EU.MFG.MARS/', 'AP.MFG.MARS/'
-#$SearchRoot = @('AP.MFG.MARS/')
+$SearchRoot = 'domainname/', 'domainname/', 'domainname/', 'domainname/', 'domainname/', 'domainname/'
+
 
 $excel = New-Object -ComObject excel.application
 $excel.visible = $true
