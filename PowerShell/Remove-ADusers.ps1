@@ -10,13 +10,13 @@
 #>
 
 # Start transcript
-Start-Transcript -Path "F:\Temp files\Remove-ADUsers.log" -Append
+Start-Transcript -Path "F:\Temp\Remove-ADUsers.log" -Append
 
 # Import AD Module
 Import-Module ActiveDirectory
 
 # Import the data from CSV file and assign it to variable
-$Users = Import-Csv "F:\Temp files\USB_Permanent exceptions to be disabled.csv"
+$Users = Import-Csv "F:\Temp\USB_Permanent exceptions to be disabled.csv"
 
 # Specify target group where the users will be removed from
 # You can add the distinguishedName of the group. For example: CN=Pilot,OU=Groups,OU=Company,DC=exoip,DC=local

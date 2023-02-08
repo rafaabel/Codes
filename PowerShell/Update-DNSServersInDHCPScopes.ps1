@@ -12,7 +12,7 @@
 #Run below script to validate the DNS servers for all DHCP scopes
 
 # Change the source fine name accordingly (files attached)
-$srcfile = "f:\temp\dhcp-local.csv"  
+$srcfile = "F:\temp\dhcp-local.csv"  
 
 #To get DHCP 006 DNS Servers option values:
 Import-Csv $srcfile | % { 
@@ -22,7 +22,7 @@ Import-Csv $srcfile | % {
 
 
 # Change the source fine name accordingly (files attached)
-$srcfile = "f:\temp\dhcp-local.csv"  
+$srcfile = "F:\temp\dhcp-local.csv"  
 
 #To set a new 006 DNS Servers DHCP scope option value:
 Import-Csv $srcfile | % { 
