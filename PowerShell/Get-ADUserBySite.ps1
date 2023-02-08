@@ -11,7 +11,7 @@
    08/05/2022
 #>
 
-#Informe a localização do arquivo a ser gerado
+#Inform location where file will be generated
 $outputFile = "C:\Temp\file.xlsx"
 $excel = New-Object -ComObject excel.application
 $excel.visible = $true
@@ -30,31 +30,31 @@ $ws.Cells.Item(1, 9) = "Segment"
 $ws.Cells.Item(1, 10) = "Line Manager"
 $ws.Cells.Item(1, 11) = "Line Manager 2"
 $currRow = 2
-#Gerando a lista de usuários de acordo com o Site Location
+#Generating user list with site location
 $location = "GUA"
 $users = Get-QADUser -LdapFilter "(&(extensionattribute15= $location)(userAccountControl=512))" -IncludedProperties extensionAttribute14, extensionAttribute15, employeeID, co
-#Processando a extração dos dados para Excel
+#Extracting data from Microsoft Excel
 $counter = 1
 foreach ($user in $users) {
-    Write-Host "Extracting the information $counter of $($users.Count) - $($user.Name)" -ForegroundColor Green
-    #Get-QADUser -LdapFilter "(&(extensionAttribute15= $location)(userAccountControl=512))" 
-    $_user = $user
-    $ws.Cells.Item($currRow, 1) = $_user.FirstName
-    $ws.Cells.Item($currRow, 2) = $_user.LastName
-    $ws.Cells.Item($currRow, 3) = $_user.DisplayName
-    $ws.Cells.Item($currRow, 4) = $_user.mail
-    $ws.Cells.Item($currRow, 5) = $_user.EmployeeID
-    $ws.Cells.Item($currRow, 6) = $_user.extensionAttribute14
-    $ws.Cells.Item($currRow, 7) = $_user.extensionAttribute15
-    $ws.Cells.Item($currRow, 8) = $_user.co
-    $ws.Cells.Item($currRow, 9) = $_user.Department
-    $lm = $_user.Manager | Get-QADUser
-    $lm2 = $lm.Manager | Get-QADUser
-    $ws.Cells.Item($currRow, 10) = $lm.DisplayName
-    $ws.Cells.Item($currRow, 11) = $lm2.DisplayName
-    $currRow++
-    $ws.UsedRange.EntireColumn.AutoFit() | Out-Null
-    $counter++
+   Write-Host "Extracting the information $counter of $($users.Count) - $($user.Name)" -ForegroundColor Green
+   #Get-QADUser -LdapFilter "(&(extensionAttribute15= $location)(userAccountControl=512))" 
+   $_user = $user
+   $ws.Cells.Item($currRow, 1) = $_user.FirstName
+   $ws.Cells.Item($currRow, 2) = $_user.LastName
+   $ws.Cells.Item($currRow, 3) = $_user.DisplayName
+   $ws.Cells.Item($currRow, 4) = $_user.mail
+   $ws.Cells.Item($currRow, 5) = $_user.EmployeeID
+   $ws.Cells.Item($currRow, 6) = $_user.extensionAttribute14
+   $ws.Cells.Item($currRow, 7) = $_user.extensionAttribute15
+   $ws.Cells.Item($currRow, 8) = $_user.co
+   $ws.Cells.Item($currRow, 9) = $_user.Department
+   $lm = $_user.Manager | Get-QADUser
+   $lm2 = $lm.Manager | Get-QADUser
+   $ws.Cells.Item($currRow, 10) = $lm.DisplayName
+   $ws.Cells.Item($currRow, 11) = $lm2.DisplayName
+   $currRow++
+   $ws.UsedRange.EntireColumn.AutoFit() | Out-Null
+   $counter++
 }
 $ws.SaveAs($outputFile)
 $workbook.Close()

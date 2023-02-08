@@ -16,24 +16,24 @@
 Connect-QADService -proxy 
 
 #Variables
-$ExportPath = 'C:\Temp\file.csv'
+$exportPath = "C:\Temp\file.csv"
 $target = "user" #Set the user who you want to get all its direct reports in a recursive way (eg: a president from a segment)
-$ArrDirectRep = [System.Collections.ArrayList]@(); 
+$arrDirectRep = [System.Collections.ArrayList]@(); 
 $i = 0;
 
 #Add Members
 do {
    $_directreports = Get-QADUser $target -Properties * | Select-Object DirectReports -ExpandProperty DirectReports
    foreach ($object in $_directreports) {
-      $ArrDirectRep.Add($object);
+      $arrDirectRep.Add($object);
    }
-   $target = $ArrDirectRep[$i];
+   $target = $arrDirectRep[$i];
    $i++;
 }
-while (($_directreports) -or ($i -le $ArrDirectRep.Count))
+while (($_directreports) -or ($i -le $arrDirectRep.Count))
 
-$Output = foreach ($user in $ArrDirectRep) {
+$output = foreach ($user in $arrDirectRep) {
    Get-QADUser $user -Properties * | Select-Object EmployeeID, Name, DisplayName, Mail, extensionAttribute15, physicaldeliveryofficename, extensionAttribute14  
 }
 
-$Output  | Export-Csv -NoType $ExportPath
+$output  | Export-Csv -NoType $exportPath

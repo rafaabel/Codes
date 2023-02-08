@@ -14,30 +14,30 @@
    07/11/2022
 #>
 Import-Module ActiveDirectory
-Function Get-OrphanAdminSdHolderGroup {
+function Get-OrphanAdminSdHolderGroup {
     [CmdletBinding()]	
-    Param ()
-    Begin {}
-    Process {}
-    End { 
+    param ()
+    begin {}
+    process {}
+    end { 
         Get-ADGroup -LDAPFilter '(&(objectClass=group)(AdminCount=1) (!(|(cn=Administrators)(cn=Enterprise Admins)(cn=Domain Admins)(cn=Backup Operators)(cn=Server Operators)(cn=Replicator)(cn=Account Operators)(cn=Domain Controllers)(cn=Read-only Domain Controllers)(cn=Schema Admins)(cn=Print Operators)(cn=Key Admins)(cn=Enterprise Key Admins))))'
     }
 }
 <#
-    .SYNOPSIS
+    .Synopsis
         Detects Orphaned SD Admin groups
     .DESCRIPTION
         Get all groups tthat have the AD Attribute AdminCount=1 set but are not the default protected groups. If the group has the AdminCount=1 enabled but is 
         not a protected group then the group is considered an orphaned admin group.
 #>
-Function Clear-OrphanAdminSdHolderGroup {
+function Clear-OrphanAdminSdHolderGroup {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    Param(
+    param(
         [parameter(Mandatory, ValueFromPipeline)]
         [Microsoft.ActiveDirectory.Management.ADPrincipal[]]$OrphanGroup
     )
-    Begin {}
-    Process {
+    begin {}
+    process {
         $OrphanGroup |
         Where-Object { $_.SamAccountName -ne 'krbtgt' } |
         ForEach-Object {
@@ -68,9 +68,9 @@ Function Clear-OrphanAdminSdHolderGroup {
             }
         }
     }
-    End {}
+    end {}
     <#
-    .SYNOPSIS
+    .Synopsis
         Resets admin count attribute and enables inheritable permissions on AD group
     .DESCRIPTION
         The AdminCount attributed is cleared and inheritable permissions are reset
@@ -82,13 +82,13 @@ Function Clear-OrphanAdminSdHolderGroup {
         Get-OrphanAdminSdHolderGroup | Clear-OrphanAdminSdHolderGroup
 #>
 }  
-Function Get-OrphanAdminSdHolderUser {
+function Get-OrphanAdminSdHolderUser {
     [CmdletBinding()]	
-    Param()
-    Begin {}
-    Process {
+    param()
+    begin {}
+    process {
     }
-    End {	
+    end {	
         $UsersInAdminGroups = (Get-ADGroup -LDAPFilter '(adminCount=1)') | 
         ForEach-Object {
             # Get all users from all admin groups recursively
@@ -110,7 +110,7 @@ Function Get-OrphanAdminSdHolderUser {
         }
     }
     <#
-    .SYNOPSIS
+    .Synopsis
         Detects Orphaned SD Admin users
     .DESCRIPTION
         Get all users that are members of protected groups within AD and compares membership with users
@@ -119,14 +119,14 @@ Function Get-OrphanAdminSdHolderUser {
 #>
 }
 
-Function Clear-OrphanAdminSdHolderUser {
+function Clear-OrphanAdminSdHolderUser {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    Param(
+    param(
         [parameter(Mandatory, ValueFromPipeline)]
         [Microsoft.ActiveDirectory.Management.ADPrincipal[]]$OrphanUser
     )
-    Begin {}
-    Process {
+    begin {}
+    process {
         $OrphanUser |
         Where-Object { $_.SamAccountName -ne 'krbtgt' } |
         ForEach-Object {
@@ -157,9 +157,9 @@ Function Clear-OrphanAdminSdHolderUser {
             }
         }
     }
-    End {}
+    end {}
     <#
-    .SYNOPSIS
+    .Synopsis
         Resets admin count attribute and enables inheritable permissions on AD user
     .DESCRIPTION
         The AdminCount attributed is cleared and inheritable permissions are reset

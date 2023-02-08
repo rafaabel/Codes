@@ -12,7 +12,7 @@
    05/08/2022
 #>
 
-Function Reset-ADComputerMachinePassword {
+function Reset-ADComputerMachinePassword {
    [CmdletBinding(SupportsShouldProcess)]
    param()
 
@@ -20,7 +20,7 @@ Function Reset-ADComputerMachinePassword {
    $localCredential = New-Object System.Management.Automation.PSCredential -ArgumentList ".\localuser", (ConvertTo-SecureString -String "password" -AsPlainText -Force) #Get-Credential
    $domainCredential = New-Object System.Management.Automation.PSCredential -ArgumentList 'DOMAIN\domainuser', (ConvertTo-SecureString -String "password" -AsPlainText -Force) #Get-Credential
 
-   Foreach ($computer in $computers) {
+   foreach ($computer in $computers) {
       Invoke-Command -ComputerName $computer.Name -Credential $using:localCredential -ScriptBlock { Reset-ComputerMachinePassword -Credential $using:domainCredential }
    }
 }

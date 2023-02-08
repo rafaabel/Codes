@@ -12,4 +12,4 @@
 #>
 
 $AllDCs = (Get-ADForest).Domains | % { Get-ADDomainController -Filter * -Server $_ }
-$AllDCs | select Name, Domain, IPv4Address, Site |  Export-Csv "C:\path\file.csv"
+$AllDCs | Select-Object Name, Domain, IPv4Address, Site |  Export-Csv "C:\Temp\file.csv"

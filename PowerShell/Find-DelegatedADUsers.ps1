@@ -14,18 +14,18 @@
 #>
 
 # Set up output file
-$File = "C:\Temp\file.txt"
-"Path;ID;Rights;Type" | Out-File $File
+$file = "C:\Temp\file.txt"
+"Path;ID;Rights;Type" | Out-File $file
 # Import AD module
 Import-Module ActiveDirectory
 # Get all OU's in the domain
 $OUs = Get-ADOrganizationalUnit -Filter *
-$Result = @()
-ForEach ($OU In $OUs) {
+$result = @()
+foreach ($OU In $OUs) {
     # Get ACL of OU
     $Path = "AD:\" + $OU.DistinguishedName
     $ACLs = (Get-Acl -Path $Path).Access
-    ForEach ($ACL in $ACLs) {
+    foreach ($ACL in $ACLs) {
         # Only examine non-inherited ACL's
         If ($ACL.IsInherited -eq $False) {
             # Objectify the result for easier handling
@@ -33,12 +33,12 @@ ForEach ($OU In $OUs) {
                 ACL = $ACL
                 OU  = $OU.DistinguishedName
             }
-            $Result += New-Object psobject -Property $Properties
+            $result += New-Object psobject -Property $Properties
         }
     }
 }
-ForEach ($Item In $Result) {
-    $Output = $Item.OU + ";" + $Item.ACL.IdentityReference + ";" + $Item.ACL.ActiveDirectoryRights + ";" + $Item.ACL.AccessControlType
-    $Output | Out-File $File -Append
+foreach ($item In $result) {
+    $output = $Item.OU + ";" + $item.ACL.IdentityReference + ";" + $item.ACL.ActiveDirectoryRights + ";" + $item.ACL.AccessControlType
+    $output | Out-File $file -Append
     Write-Host $Output
 }

@@ -22,15 +22,15 @@ Import-Module AzureAd
 Connect-QADService -Proxy "ARS server"
 Connect-AzureAD
 
-$DomainMPGFilter = '(&(objectClass=group)(AdminCount=1) (( | (cn=Administrators)(cn=Enterprise Admins)(cn=Domain Admins)(cn=Backup Operators)(cn=Server Operators)(cn=Replicator)(cn=Account Operators)(cn=Domain Controllers)(cn=Read-only Domain Controllers)(cn=Schema Admins)(cn=Print Operators)(cn=Key Admins)(cn=Enterprise Key Admins))))'
-$SearchRoot = 'domainname/', 'domainname/', 'domainname/', 'domainname/', 'domainname/', 'domainname/'
+$domainMPGFilter = '(&(objectClass=group)(AdminCount=1) (( | (cn=Administrators)(cn=Enterprise Admins)(cn=Domain Admins)(cn=Backup Operators)(cn=Server Operators)(cn=Replicator)(cn=Account Operators)(cn=Domain Controllers)(cn=Read-only Domain Controllers)(cn=Schema Admins)(cn=Print Operators)(cn=Key Admins)(cn=Enterprise Key Admins))))'
+$searchRoot = 'domainname/', 'domainname/', 'domainname/', 'domainname/', 'domainname/', 'domainname/'
 
 
 $excel = New-Object -ComObject excel.application
 $excel.visible = $true
 $excel = $excel.workbooks.add()
 
-For ($i = 0; $i -lt $SearchRoot.Count; $i++) {
+for ($i = 0; $i -lt $SearchRoot.Count; $i++) {
    $ws = $excel.Worksheets.Item(1) #select tab
    $ws.Name = $SearchRoot[$i].Replace('/', '')
    $ws.Cells.Item(1, 1) = "DisplayName"
@@ -42,7 +42,7 @@ For ($i = 0; $i -lt $SearchRoot.Count; $i++) {
    $currRow = 2
    $groupCounter = 1
    try {
-      $DomainMPG = Get-QADgroup -LDAPFilter $DomainMPGFilter -SearchRoot $SearchRoot[$i]
+      $DomainMPG = Get-QADgroup -LDAPFilter $domainMPGFilter -SearchRoot $searchRoot[$i]
    }
    catch {
       Write-Host "An error occurred:"
@@ -51,7 +51,7 @@ For ($i = 0; $i -lt $SearchRoot.Count; $i++) {
       continue
    }
    foreach ($domaingroup in $DomainMPG) {
-      $members = Get-QADGroupMember -Identity $domaingroup.DN -IncludeAllProperties -Indirect | select DisplayName, SamAccountName, mail, DistinguishedName, co
+      $members = Get-QADGroupMember -Identity $domaingroup.DN -IncludeAllProperties -Indirect | Select-Object DisplayName, SamAccountName, mail, DistinguishedName, co
       Write-Host "Extracting members of $($domaingroup.Name) - Total members: $($members.Count)" -ForegroundColor Green
       foreach ($member in $members) {
          $ws.Cells.Item($currRow, 1) = $member.DisplayName
@@ -79,7 +79,7 @@ $ws.Cells.Item(1, 3) = "Role"
 $currRow = 2
 
 foreach ($azureadprivilegerole in $AzureADPrivilegedRoles) {
-   $Role = Get-AzureADDirectoryRole  | Where { $_.DisplayName -eq $azureadprivilegerole }
+   $Role = Get-AzureADDirectoryRole  | where { $_.DisplayName -eq $azureadprivilegerole }
    $RoleMember = Get-AzureADDirectoryRoleMember -ObjectId $Role.ObjectId 
    
    foreach ($member in $RoleMember) {

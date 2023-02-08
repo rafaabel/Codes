@@ -18,7 +18,9 @@ if ( (((whoami /user) -split "\n")[-1]) -notmatch "S-1-5-18" ) {
 }
 
 $keyValue = Get-ItemProperty 'HKLM:\SECURITY\Policy\Secrets\$MACHINE.ACC\CupdTime\'
-$HexValue = $keyValue.'(default)' | ForEach-Object { ([System.Convert]::ToString($_, 16)).PadLeft(2, '0') }
+$HexValue = $keyValue.'(default)' | foreach { 
+    ([System.Convert]::ToString($_, 16)).PadLeft(2, '0') 
+}
 [array]::Reverse($HexValue)
 
 $Arg1 = $HexValue[4..7] -join ""

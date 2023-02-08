@@ -3,7 +3,7 @@
    Search for strings in all GPOs applied to the domain
 .DESCRIPTION
    Search for strings in all GPOs applied to the domain
-.REQUIREMENTS
+.REQUIREMENTSclear
    This script can be run from any domain joined computer
 .AUTHOR
    Rafael Abel - rafael.abel@effem.com
@@ -26,17 +26,17 @@ $allGposInDomain = Get-GPO -All -Domain $DomainName
 # Look through each GPO's XML for the string 
 Write-Host "Starting search...." 
 foreach ($gpo in $allGposInDomain) { 
-    $report = Get-GPOReport -Guid $gpo.Id -ReportType Xml 
-    if ($report -match $string) { 
-        write-host "********** Match found in: $($gpo.DisplayName) **********" -foregroundcolor "Green"
-        $MatchedGPOList += "$($gpo.DisplayName)";
-    } # end if 
-    else { 
-        Write-Host "No match in: $($gpo.DisplayName)" 
-    } # end else 
+   $report = Get-GPOReport -Guid $gpo.Id -ReportType Xml 
+   if ($report -match $string) { 
+      write-host "********** Match found in: $($gpo.DisplayName) **********" -foregroundcolor "Green"
+      $MatchedGPOList += "$($gpo.DisplayName)";
+   } # end if 
+   else { 
+      Write-Host "No match in: $($gpo.DisplayName)" 
+   } # end else 
 } # end foreach
-write-host "`r`n"
-write-host "Results: **************" -foregroundcolor "Yellow"
+Write-Host "`r`n"
+Write-Host "Results: **************" -foregroundcolor "Yellow"
 foreach ($match in $MatchedGPOList) { 
-    write-host "Match found in: $($match)" -foregroundcolor "Green"
+   Write-Host "Match found in: $($match)" -foregroundcolor "Green"
 }

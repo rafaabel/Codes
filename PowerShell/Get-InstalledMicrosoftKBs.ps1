@@ -12,9 +12,11 @@
    05/11/2022
 #>
 
-$AllDCs = (Get-ADForest).Domains | % { Get-ADDomainController -Filter * -Server $_ }  | select HostName | Out-File -FilePath .\AllDCs.txt -NoClobber
+$AllDCs = (Get-ADForest).Domains | % { Get-ADDomainController -Filter * -Server $_ }  | Select-Object HostName | Out-File -FilePath .\AllDCs.txt -NoClobber
 $A = Get-Content -Path C:\Temp\file.txt
-$A | ForEach-Object { if (!(Get-HotFix -Id KB4534321 -ComputerName $_))
-   { Add-Content $_ -Path .\Missing-KB45343215.txt } }
+$A | foreach { 
+   if (!(Get-HotFix -Id KB4534321 -ComputerName $_))
+   { Add-Content $_ -Path .\Missing-KB45343215.txt } 
+}
          
 

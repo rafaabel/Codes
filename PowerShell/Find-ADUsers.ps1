@@ -13,11 +13,10 @@
    09/22/2021
 #>
 
-$ExportPath = 'C:\Temp\file.csv'
+$exportPath = "C:\Temp\file.csv"
 $ADObjects = Get-ADUser -Properties * -Filter '
     extensionAttribute15 -eq "SITECODE" -or 
     extensionAttribute15 -eq "SITECODE" -or 
     extensionAttribute15 -eq "SITECODE"'
 
-$ADObjects | Select-Object DistinguishedName, Name, UserPrincipalName, Mail, Enabled, extensionAttribute15 | 
-Export-Csv -NoType $ExportPath
+$ADObjects | Select-Object DistinguishedName, Name, UserPrincipalName, Mail, Enabled, extensionAttribute15 | Export-Csv -NoType $exportPath

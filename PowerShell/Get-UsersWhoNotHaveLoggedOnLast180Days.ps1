@@ -12,4 +12,4 @@
 #>
 
 $DaysSince = (Get-Date).AddDays(-180)
-Get-ADUser -Filter * -Properties LastLogonDate | Where-Object { ($_.LastLogonDate -le $DaysSince) -and ($_.Enabled -eq $True) -and ($_.LastLogonDate -ne $NULL) } | Select Name, LastLogonDate | Export-Csv "C:\temp\Users_Who_Have_Not_Logged_On_Last_180_Days.csv"
+Get-ADUser -Filter * -Properties LastLogonDate | Where-Object { ($_.LastLogonDate -le $DaysSince) -and ($_.Enabled -eq $True) -and ($_.LastLogonDate -ne $NULL) } | Select-Object Name, LastLogonDate | Export-Csv "C:\temp\Users_Who_Have_Not_Logged_On_Last_180_Days.csv"

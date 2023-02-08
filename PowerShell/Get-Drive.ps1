@@ -27,46 +27,46 @@ $drives = Get-WmiObject -Class Win32_LogicalDisk -ComputerName localhost |
 Where-Object { $_. DriveType -eq 3 } | 
 Select-Object DeviceID, { $_.Size / 1GB }, { $_.FreeSpace / 1GB }
 
-ForEach ($drive in $($drives)) {
+foreach ($drive in $($drives)) {
     #Check if drive is C and and if its value matches with the drive size requirements:
-    If ($drive.DeviceID -eq "C:") {
-        If (($($drive. { $_.Size / 1GB }) -ge $C)) {
+    if ($drive.DeviceID -eq "C:") {
+        if (($($drive. { $_.Size / 1GB }) -ge $C)) {
             Write-Host "$($drive.DeviceID) [Passed]" -ForegroundColor Green
         }
-        Else {
+        else {
             Write-Host "$($drive.DeviceID) [Failed]" -ForegroundColor Red
         }
     }
     #Check if drive is D and if its value matches with the drive size requirements:
-    Elseif ($drive.DeviceID -eq "D:") {
-        If (($($drive. { $_.Size / 1GB }) -ge $D)) {
+    elseif ($drive.DeviceID -eq "D:") {
+        if (($($drive. { $_.Size / 1GB }) -ge $D)) {
             Write-Host "$($drive.DeviceID) [Passed]" -ForegroundColor Green
         }
-        Else {
+        else {
             Write-Host "$($drive.DeviceID) [Failed]" -ForegroundColor Red
         }
     }
 
     #Check if drive is E and if its value matches with the drive size requirements:
-    ElseIf ($drive.DeviceID -eq "E:") {
-        If (($($drive. { $_.Size / 1GB }) -ge $E)) {
+    elseIf ($drive.DeviceID -eq "E:") {
+        if (($($drive. { $_.Size / 1GB }) -ge $E)) {
             Write-Host "$($drive.DeviceID) [Passed]" -ForegroundColor Green
         }
-        Else {
+        else {
             Write-Host "$($drive.DeviceID) [Failed]" -ForegroundColor Red
         }
     }
 
     #Check if drive is F and if its value matches with the drive size requirements:
-    ElseIf ($drives.DeviceID -eq "F:") {
-        If (($($drive. { $_.Size / 1GB }) -ge $F)) {
+    elseIf ($drives.DeviceID -eq "F:") {
+        if (($($drive. { $_.Size / 1GB }) -ge $F)) {
             Write-Host "$($drive.DeviceID) [Passed]" -ForegroundColor Green
         }
-        Else {
+        else {
             Write-Host "$($drive.DeviceID) [Failed]" -ForegroundColor Red
         }
     }
-    Else {
+    else {
         Write-Host "No more drives to be checked" -ForegroundColor Red
     }
 }

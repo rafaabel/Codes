@@ -11,47 +11,47 @@
    09/21/2021
 #>
 
-$strComputer = get-content env:computername #Enter the name of the target computer, localhost is used by default
+$strComputer = Get-Content env:computername #Enter the name of the target computer, localhost is used by default
 Write-Host "Computer: $strComputer"
 $computer = [ADSI]"WinNT://$strComputer"
-$objCount = ($computer.psbase.children | measure-object).count
+$objCount = ($computer.psbase.children | Measure-Object).count
 Write-Host "Q-ty objects for computer '$strComputer' = $objCount"
-$Counter = 1
+$counter = 1
 $result = @()
 foreach ($adsiObj in $computer.psbase.children) {
     switch -regex($adsiObj.psbase.SchemaClassName) {
         "group" {
             $group = $adsiObj.name
-            $LocalGroup = [ADSI]"WinNT://$strComputer/$group,group"
-            $Members = @($LocalGroup.psbase.Invoke("Members"))
-            $objCount = ($Members | measure-object).count
+            $localGroup = [ADSI]"WinNT://$strComputer/$group,group"
+            $members = @($localGroup.psbase.Invoke("members"))
+            $objCount = ($members | Measure-Object).count
             Write-Host "Q-ty objects for group '$group' = $objCount"
-            $GName = $group.tostring()
+            $gName = $group.tostring()
 
-            ForEach ($Member In $Members) {
-                $Name = $Member.GetType().InvokeMember("Name", "GetProperty", $Null, $Member, $Null)
-                $Path = $Member.GetType().InvokeMember("ADsPath", "GetProperty", $Null, $Member, $Null)
-                Write-Host " Object = $Path"
+            foreach ($member in $members) {
+                $name = $member.GetType().InvokeMember("Name", "GetProperty", $Null, $member, $Null)
+                $path = $member.GetType().InvokeMember("ADsPath", "GetProperty", $Null, $member, $Null)
+                Write-Host " Object = $path"
 
-                $isGroup = ($Member.GetType().InvokeMember("Class", "GetProperty", $Null, $Member, $Null) -eq "group")
-                If (($Path -like "*/$strComputer/*") -Or ($Path -like "WinNT://NT*")) {
-                    $Type = "Local"
+                $isGroup = ($member.GetType().InvokeMember("Class", "GetProperty", $Null, $member, $Null) -eq "group")
+                if (($path -like "*/$strComputer/*") -Or ($path -like "WinNT://NT*")) {
+                    $type = "Local"
                 }
-                Else { $Type = "Domain" }
+                else { $type = "Domain" }
                 $result += New-Object PSObject -Property @{
                     Computername  = $strComputer
-                    NameMember    = $Name
-                    PathMember    = $Path
-                    TypeMember    = $Type
-                    ParentGroup   = $GName
+                    NameMember    = $name
+                    PathMember    = $path
+                    TypeMember    = $type
+                    ParentGroup   = $gName
                     isGroupMember = $isGroup
-                    Depth         = $Counter
+                    Depth         = $counter
                 }
             }
         }
     } #end switch
 } #end foreach
-Write-Host "Total objects = " ($result | measure-object).count
-$result = $result | select-object Computername, ParentGroup, NameMember, TypeMemeber, PathMember, isGroupMemeber, Depth
-$result | Export-Csv -path ("C:\temp\LocalGroups({0})-{1:yyyyMMddHHmm}.csv" -f
-    $env:COMPUTERNAME, (Get-Date)) -Delimiter ";" -Encoding "UTF8" -force -NoTypeInformation
+Write-Host "Total objects = " ($result | Measure-Object).count
+$result = $result | Select-Object Computername, ParentGroup, NameMember, TypeMemeber, PathMember, isGroupMemeber, Depth
+$result | Export-Csv -path ("C:\temp\localGroups({0})-{1:yyyyMMddHHmm}.csv" -f
+    $env:COMPUTERNAME, (Get-Date)) -Delimiter ";" -Encoding "UTF8" -Force -NoTypeInformation

@@ -13,10 +13,8 @@
 
 $users = Import-Csv -path "C:\Temp\file.csv"
 
-ForEach ($user in $users) {
-
+foreach ($user in $users) {
    Enable-ADAccount -Identity $user.SamAccountName
-
-   write-host "user $($user) has been enabled"
+   Write-host "User $($user) has been enabled"
 
 }
