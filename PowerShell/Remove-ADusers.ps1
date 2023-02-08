@@ -1,10 +1,12 @@
-Remove AD users from group
+<#
+.Synopsis
+    Remove AD users from group
 .REQUIREMENTS
-This script must be run from any DC
+    This script must be run from any DC
 .AUTHOR
-ref: https://www.alitajran.com/remove-users-from-group-powershell/#:~:text=Users%20PowerShell%20script.-, Bulk%20remove%20users%20from%20group%20with%20CSV%20file, users%20in%20the%20CSV%20file.
+    ref: https://www.alitajran.com/remove-users-from-group-powershell/#:~:text=Users%20PowerShell%20script.-, Bulk%20remove%20users%20from%20group%20with%20CSV%20file, users%20in%20the%20CSV%20file.
 .DATE
-01 / 08 / 2023
+    01 / 08 / 2023
 #>
 
 # Start transcript
