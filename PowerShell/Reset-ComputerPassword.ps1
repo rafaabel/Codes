@@ -24,3 +24,5 @@ function Reset-ADComputerMachinePassword {
       Invoke-Command -ComputerName $computer.Name -Credential $using:localCredential -ScriptBlock { Reset-ComputerMachinePassword -Credential $using:domainCredential }
    }
 }
+
+
