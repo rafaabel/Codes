@@ -57,8 +57,8 @@ Param(
 # Global Variables
 #...................................
 
-$now = Get-Date
-$date = $now.ToShortDateString()
+$date = Get-Date -Format "yyyy/MM/dd"
+$forestName = (Get-ADForest).Name
 [array]$allDomainControllers = @()
 $reportime = Get-Date
 $reportemailsubject = "Domain Controller Health Report"
@@ -66,7 +66,7 @@ $reportemailsubject = "Domain Controller Health Report"
 $smtpsettings = @{
     To         = 'idss.ops.team@effem.com'
     From       = 'ADhealthcheck@effem.com'
-    Subject    = "$reportemailsubject - $now"
+    Subject    = "$forestName - $reportemailsubject - $date"
     SmtpServer = "internalsmtp.mars-ad.net"
 }
 
@@ -381,7 +381,7 @@ $htmlhead = "<html>
                    
 # Domain Controller Health Report Table Header
 $htmltableheader = "<h3>Domain Controller Health Summary</h3>
-                        <h3>Forest: $((Get-ADForest).Name)</h3>
+                        <h3>Forest: $forestName </h3>
                         <p>
                         <table>
                         <tr>

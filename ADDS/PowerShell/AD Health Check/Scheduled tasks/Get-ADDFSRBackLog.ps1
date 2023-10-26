@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    Get-ADEventIDs.ps1 - Domain Controller Event IDs Health Check Script.
+    Get-ADDFSRBacklog.ps1 - Domain Controller DFSR Health Check Script.
 
     .DESCRIPTION
     This script performs a list of common health checks to a specific domain, or the entire forest. The results are then compiled into a colour coded HTML report.
@@ -18,15 +18,15 @@
     Send the report via email. You have to configure the correct SMTP settings.
 
     .EXAMPLE
-    .\Get-ADEventIDs.ps1 -ReportFile
+    .\Get-ADDFSRBacklog.ps1 -ReportFile
     Checks all domains and all domain controllers in your current forest and creates a report.
 
     .EXAMPLE
-    .\Get-ADEventIDs.ps1 -DomainName alitajran.com -ReportFile
+    .\Get-ADDFSRBacklog.ps1 -DomainName alitajran.com -ReportFile
     Checks all the domain controllers in the specified domain "alitajran.com" and creates a report.
 
     .EXAMPLE
-    .\Get-ADEventIDs.ps1 -DomainName alitajran.com -SendEmail
+    .\Get-ADDFSRBacklog.ps1 -DomainName alitajran.com -SendEmail
     Checks all the domain controllers in the specified domain "alitajran.com" and sends the resulting report as an email message.
 
     .LINK
@@ -42,13 +42,16 @@
 
     .CHANGELOG
     V1.00, 01/21/2023 - Initial version
-    V1.01, 05/26/2023 - 
+    V1.01, 05/29/2023 - 
         DNS, Ping, Uptime, DIT file drive space, Services, DC Diag and OS drive functions removed
-        Event ID function created
+        DFSR backlog function created
         htmltableheader updated
         htmltablerow updated
-        $htmltail l 
+        $htmltail updated
+    V1.02, 06/15/2023 - Try / Catch statement added in DFSR backlog function and HTML conditional formatting updated
+    v1.03, 06/20/2023 - Updated DFSR backlog function and HTML code to find PDC emulator (source server) of every domain. 
 #>
+
 [CmdletBinding()]
 Param(
     [Parameter( Mandatory = $false)]
@@ -69,7 +72,7 @@ $date = Get-Date -Format "yyyy/MM/dd"
 $forestName = (Get-ADForest).Name
 [array]$allDomainControllers = @()
 $reportime = Get-Date
-$reportemailsubject = "Domain Controller Event IDs Health Report"
+$reportemailsubject = "Domain Controller DFSR Health Report"
 
 $smtpsettings = @{
     To         = 'idss.ops.team@effem.com'
@@ -96,75 +99,39 @@ Function Get-AllDomainControllers ($DomainNameInput) {
     return $allDomainControllers
 }
 
-# This function gets all Event IDs in a specified domain and group by server name.
-Function Get-ADEventIDs($DomainNameInput) {
-    Write-Verbose "..running function ADEventIDs"
+# This function gets all DFSR backlog in a specified domain
+Function Get-ADDFSRBackLog ($DomainNameInput, $domain) {
+    Write-Verbose "...running function DFSR Backlog"
 
     If ((Test-Connection $DomainNameInput -Count 1 -quiet) -eq $True) {
-        $systemEvents = Get-WinEvent -FilterHashtable @{LogName = 'System'; ID = 2004; StartTime = (Get-Date).AddDays(-1) } -ComputerName $DomainNameInput -ErrorAction SilentlyContinue
-        $directoryServiceEvents = Get-WinEvent -FilterHashtable @{LogName = 'Directory Service'; ID = 602, 623, 1388, 1519, 1988, 2042, 2095, 2866; StartTime = (Get-Date).AddDays(-1) } -ComputerName $DomainNameInput -ErrorAction SilentlyContinue
-        $dnsServerEvents = Get-WinEvent -FilterHashtable @{LogName = 'DNS Server'; ID = 4010, 4016; StartTime = (Get-Date).AddDays(-1) } -ComputerName $DomainNameInput -ErrorAction SilentlyContinue
 
-        $thisEventIDs += foreach ($systemEvent in $systemEvents) {
-            [PSCustomObject]@{
-                Server    = "$($DomainNameInput)"
-                EventType = "System"
-                EntryType = $systemEvent.LevelDisplayName
-                EventID   = $systemEvent.Id
-                Message   = $systemEvent.Message
-            }
+        $sourceServer = (Get-ADDomain $domain | Select-Object PDCEmulator).PDCEmulator
+        $destinationServer = $DomainNameInput
+        $groupName = "Domain System Volume"
+        $folderName = "SYSVOL Share"
+        try {
+            $dfsrBackLog = (Get-DfsrBacklog -SourceComputerName $sourceServer -DestinationComputerName $destinationServer -GroupName $groupName  -FolderName $folderName -ErrorAction Stop).Count
+        }
+        catch [exception] {
+            $dfsrBackLog = 'WMI Failure'
         }
 
-        $thisEventIDs += foreach ($directoryServiceEvent in $directoryServiceEvents) {
-            [PSCustomObject]@{
-                Server    = "$($DomainNameInput)"
-                EventType = "Directory Service"
-                EntryType = $directoryServiceEvent.LevelDisplayName
-                EventID   = $directoryServiceEvent.Id
-                Message   = $directoryServiceEvent.Message
-            }
-        }
-
-        $thisEventIDs += foreach ($dnsServerEvent in $dnsServerEvents) {
-            [PSCustomObject]@{
-                Server    = "$($DomainNameInput)"
-                EventType = "DNS Server"
-                EntryType = $dnsServerEvent.LevelDisplayName
-                EventID   = $dnsServerEvent.Id
-                Message   = $dnsServerEvent.Message
-            }
-        }
-
-        $thisEventIDs = $thisEventIDs | Group-Object Server | ForEach-Object {
-            $server = $_.Group[0].Server
-            $eventType = ($_.Group | Select-Object -ExpandProperty EventType -Unique)
-            $entryType = ($_.Group | Select-Object -ExpandProperty EntryType -Unique) 
-            $eventID = ($_.Group | Select-Object -ExpandProperty EventID -Unique) 
-            $message = ($_.Group | Select-Object -ExpandProperty Message -Unique) 
-
-            [PSCustomObject]@{
-                Server    = $server
-                EventType = @($eventType)
-                EntryType = @($entryType)
-                EventID   = @($eventID)
-                Message   = @($message)
-            }
+        [PSCustomObject]@{
+            SourceServer      = $sourceServer
+            DestinationServer = $destinationServer
+            GroupName         = $groupName
+            FolderName        = $folderName
+            DFSRBacklog       = $dfsrBackLog
         }
     }
 
     Else {
-        $thisEventIDs = [PSCustomObject]@{
-            Server    = $server
-            EventType = 'Failed'
-            EntryType = 'Failed'
-            EventID   = 'Failed'
-            Message   = 'Failed'
-        }
+        $dfsrBackLog = "Failed"  
     }
-    return $thisEventIDs 
+    return $dfsrBackLog
 }
 
-# This function checks the server OS version.nt
+# This function checks the server OS version.
 Function Get-DomainControllerOSVersion ($DomainNameInput) {
     Write-Verbose "..running function Get-DomainControllerOSVersion"
     $W32OSVersion = (Get-WmiObject -Class Win32_OperatingSystem -ComputerName $DomainNameInput -ErrorAction SilentlyContinue).Caption
@@ -215,24 +182,24 @@ foreach ($domain in $allDomains) {
         $stopWatch = [system.diagnostics.stopwatch]::StartNew()
         Write-Host "..testing domain controller" "(${totalDCtoProcessCounter} of ${totalDCProcessCount})" $domainController.HostName -ForegroundColor Cyan
         $thisDomainController = New-Object PSObject
-        $thisDomainController | Add-Member NoteProperty -name Server -Value $null
+        $thisDomainController | Add-Member NoteProperty -name "Source Server" -Value $null
+        $thisDomainController | Add-Member NoteProperty -name "Destination Server" -Value $null
         $thisDomainController | Add-Member NoteProperty -name Site -Value $null
         $thisDomainController | Add-Member NoteProperty -name "OS Version" -Value $null
         $thisDomainController | Add-Member NoteProperty -name "Operation Master Roles" -Value $null
-        $thisDomainController | Add-Member NoteProperty -name "Event Type" -Value $null
-        $thisDomainController | Add-Member NoteProperty -name "Entry Type" -Value $null
-        $thisDomainController | Add-Member NoteProperty -name "Event ID" -Value $null
-        $thisDomainController | Add-Member NoteProperty -name "Message" -Value $null
+        $thisDomainController | Add-Member NoteProperty -name "Group Name" -Value $null
+        $thisDomainController | Add-Member NoteProperty -name "Folder Name" -Value $null
+        $thisDomainController | Add-Member NoteProperty -name "DFSR Backlog ( > 99)" -Value $null
         $thisDomainController | Add-Member NoteProperty -name "Processing Time" -Value $null
         $OFS = "`r`n"
-        $thisDomainController.Server = ($domainController.HostName).ToLower()
+        $thisDomainController."Source Server" = (Get-ADDFSRBackLog -DomainNameInput $domainController.HostName -domain $domain).SourceServer.ToLower() 
+        $thisDomainController."Destination Server" = ($domainController.HostName).ToLower()
         $thisDomainController.Site = $domainController.Site
-        $thisDomainController."OS Version" = (Get-DomainControllerOSVersion $domainController.hostname)
+        $thisDomainController."OS Version" = (Get-DomainControllerOSVersion -DomainNameInput $domainController.hostname)
         $thisDomainController."Operation Master Roles" = $domainController.OperationMasterRoles
-        $thisDomainController."Event Type" = (Get-ADEventIDs $domainController.HostName).EventType
-        $thisDomainController."Entry Type" = (Get-ADEventIDs $domainController.HostName).EntryType
-        $thisDomainController."Event ID" = (Get-ADEventIDs $domainController.HostName).EventID
-        $thisDomainController."Message" = (Get-ADEventIDs $domainController.HostName).Message
+        $thisDomainController."Group Name" = (Get-ADDFSRBackLog -DomainNameInput $domainController.HostName -domain $domain).GroupName
+        $thisDomainController."Folder Name" = (Get-ADDFSRBackLog -DomainNameInput $domainController.HostName -domain $domain).FolderName
+        $thisDomainController."DFSR Backlog ( > 99)" = (Get-ADDFSRBackLog -DomainNameInput $domainController.HostName -domain $domain).DFSRBacklog
         $thisDomainController."Processing Time" = $stopWatch.Elapsed.Seconds
 
         [array]$allTestedDomainControllers += $thisDomainController
@@ -266,14 +233,14 @@ $htmltableheader = "<h3>Domain Controller Health Summary</h3>
                         <p>
                         <table>
                         <tr>
-                        <th>Server</th>
+                        <th>Source Server</th>
+                        <th>Destination Server</th>
                         <th>Site</th>
                         <th>OS Version</th>
                         <th>Operation Master Roles</th>
-                        <th>Event Type</th>
-                        <th>Entry Type</th>
-                        <th>Event ID</th>
-                        <th>Message</th>
+                        <th>Group Name</th>
+                        <th>Folder Name</th>
+                        <th>DFSR Backlog ( > 99)</th>
                         <th>Processing Time</th>
                         </tr>"
 
@@ -299,107 +266,31 @@ foreach ($reportline in $allTestedDomainControllers) {
         $fsmoRoleHTML += 'None<br>'
     }
 
-    if (Test-Path variable:osEventType) {
-        Remove-Variable osEventType
-    }
-    
-    if (($reportline."Event Type") -gt 0) {
-        foreach ($line in $reportline."Event Type") {
-            if ($line.count -gt 0) {
-                [array]$osEventType += $line.ToString() + '<br>'
-            }
-        }
-    }
-
-    else {
-        $osEventType += 'Passed<br>'
-    }
-
-    if (Test-Path variable:osEntryType) {
-        Remove-Variable osEntryType
-    }
-
-    if (($reportline."Entry Type") -gt 0) {
-        foreach ($line in $reportline."Entry Type") {
-            if ($line.count -gt 0) {
-                [array]$osEntryType += $line.ToString() + '<br>'
-            }
-        }
-    }
-
-    else {
-        $osEntryType += 'Passed<br>'
-    }
-
-    if (Test-Path variable:osEventID) {
-        Remove-Variable osEventID
-    }
-
-    if (($reportline."Event ID") -gt 0) {
-        foreach ($line in $reportline."Event ID") {
-            if ($line.count -gt 0) {
-                [array]$osEventID += $line.ToString() + '<br>'
-            }
-        }
-    }
-
-    else {
-        $osEventID += 'Passed<br>'
-    }
-
-    if (Test-Path variable:osEventMessage) {
-        Remove-Variable osEventMessage
-    }
-
-    if (($reportline."Message") -gt 0) {
-        foreach ($line in $reportline."Message") {
-            if ($line.count -gt 0) {
-                [array] $osEventMessage += $line.ToString() + '<br>'
-            }
-        }
-    }
-
-    else {
-        $osEventMessage += 'Passed<br>'
-    }
-
     $htmltablerow = "<tr>"
-    $htmltablerow += "<td>$($reportline.server)</td>"
+    $htmltablerow += "<td>$($reportline."Source Server")</td>"
+    $htmltablerow += "<td>$($reportline."Destination Server")</td>"
     $htmltablerow += "<td>$($reportline.site)</td>"
     $htmltablerow += "<td>$($reportline."OS Version")</td>"
     $htmltablerow += "<td>$($fsmoRoleHTML)</td>"
+    $htmltablerow += (New-ServerHealthHTMLTableCell "Group Name")
+    $htmltablerow += (New-ServerHealthHTMLTableCell "Folder Name") 
 
-    if ($osEntryType -eq "Failed") {
-        $htmltablerow += "<td class=""warn"">Could not retrieve server Events.</td>"
-        $htmltablerow += "<td class=""warn"">$osEntryType</td>"
-        $htmltablerow += "<td class=""warn"">$osEventID</td>"
-        $htmltablerow += "<td class=""warn"">$osEventMessage</td>"       
-    }
+    $osDfsrBackLog = $reportline."DFSR Backlog ( > 99)"
 
-    elseif ($osEntryType -eq "Error<br>") {
-        $htmltablerow += "<td class=""fail"">$osEventType</td>"
-        $htmltablerow += "<td class=""fail"">$osEntryType</td>"
-        $htmltablerow += "<td class=""fail"">$osEventID</td>"
-        $htmltablerow += "<td class=""fail"">$osEventMessage</td>"
+    if ($osDfsrBackLog -eq "WMI Failure") {
+        $htmltablerow += "<td class=""warn"">Could not test server DFSR Backlog.</td>"        
     }
-    elseif ($osEntryType -eq "Warning<br>") {
-        $htmltablerow += "<td class=""warn"">$osEventType</td>"
-        $htmltablerow += "<td class=""warn"">$osEntryType</td>"
-        $htmltablerow += "<td class=""warn"">$osEventID</td>"
-        $htmltablerow += "<td class=""warn"">$osEventMessage</td>"
+    elseif ($osDfsrBackLog -eq "Failed") {
+        $htmltablerow += "<td class=""warn"">Could not test server DFSR Backlog.</td>"        
     }
-
-    elseif ($osEntryType -contains "Error<br>" -and $osEntryType -contains "Warning<br>" ) {
-        $htmltablerow += "<td class=""fail"">$osEventType</td>"
-        $htmltablerow += "<td class=""fail"">$osEntryType</td>"
-        $htmltablerow += "<td class=""fail"">$osEventID</td>"
-        $htmltablerow += "<td class=""fail"">$osEventMessage</td>"
+    elseif ($osDfsrBackLog -gt 70 -and $osDfsrBackLog -le 99) {
+        $htmltablerow += "<td class=""warn"">$osDfsrBackLog</td>"
+    }
+    elseif ($osDfsrBackLog -gt 99) {
+        $htmltablerow += "<td class=""fail"">$osDfsrBackLog</td>"
     }
     else {
-        $htmltablerow += "<td class=""pass"">$osEventType</td>"
-        $htmltablerow += "<td class=""pass"">$osEntryType</td>"
-        $htmltablerow += "<td class=""pass"">$osEventID</td>"
-        $htmltablerow += "<td class=""pass"">$osEventMessage</td>"
+        $htmltablerow += "<td class=""pass"">$osDfsrBackLog </td>"
     }
 
     $averageProcessingTime = ($allTestedDomainControllers | measure -Property "Processing Time" -Average).Average
@@ -409,7 +300,7 @@ foreach ($reportline in $allTestedDomainControllers) {
     elseif ($($reportline."Processing Time") -le $averageProcessingTime) {
         $htmltablerow += "<td class=""pass"">$($reportline."Processing Time")</td>"
     }
-
+  
     [array]$serverhealthhtmltable = $serverhealthhtmltable + $htmltablerow
 }
 
