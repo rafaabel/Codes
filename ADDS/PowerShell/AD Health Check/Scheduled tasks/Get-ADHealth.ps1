@@ -217,13 +217,9 @@ Function Get-DomainControllerDCDiagTestResults($DomainNameInput) {
                 "passed test|failed test" {
                     If ($_ -Match "passed test") {
                         $TestStatus = "Passed"
-                        # $TestName
-                        # $_
                     }
                     Else {
                         $TestStatus = "Failed"
-                        # $TestName
-                        # $_
                     }
                 }
             } 
@@ -253,7 +249,7 @@ Function Get-DomainControllerOSVersion ($DomainNameInput) {
     return $W32OSVersion
 }
 
-# This function checks the free space on the OS drive
+# This function checks the free space on the OS drive.
 Function Get-DomainControllerOSDriveFreeSpace ($DomainNameInput) {
     Write-Verbose "..running function Get-DomainControllerOSDriveFreeSpace"
 
@@ -360,7 +356,7 @@ foreach ($domain in $allDomains) {
 
 }
 
-# Common HTML head and styles
+# Common HTML head and styles.
 $htmlhead = "<html>
                 <style>
                 BODY{font-family: Arial; font-size: 8pt;}
@@ -379,7 +375,7 @@ $htmlhead = "<html>
                 <h1 align=""left"">Domain Controller Health Check Report</h1>
                 <h3 align=""left"">Generated: $reportime</h3>"
                    
-# Domain Controller Health Report Table Header
+# Domain Controller Health Report Table Header.
 $htmltableheader = "<h3>Domain Controller Health Summary</h3>
                         <h3>Forest: $forestName </h3>
                         <p>
@@ -405,7 +401,7 @@ $htmltableheader = "<h3>Domain Controller Health Summary</h3>
                         <th>Processing Time</th>
                         </tr>"
 
-# Domain Controller Health Report Table
+# Domain Controller Health Report Table.
 $serverhealthhtmltable = $serverhealthhtmltable + $htmltableheader
 
 # This section will process through the $allTestedDomainControllers array object and create and colour the HTML table based on certain conditions.
@@ -509,7 +505,7 @@ if ($ReportFile) {
 }
 
 if ($SendEmail) {
-    # Send email message
+    # Send email message.
     Send-MailMessage @smtpsettings -Body $htmlreport -BodyAsHtml -Encoding ([System.Text.Encoding]::UTF8)
 
 }

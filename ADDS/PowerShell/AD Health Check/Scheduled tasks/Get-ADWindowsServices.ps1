@@ -79,9 +79,9 @@ $forestName = (Get-ADForest).Name
 $reporTime = Get-Date
 $reportEmailSubject = "Domain Controller Windows Services Health Report"
 
-# If parameter "ReportFileName" isn't used, assign it a value
+# If parameter "ReportFileName" isn't used, assign it a value.
 if ( $PSBoundParameters.Keys -notcontains "ReportFileName" ) {
-    $today = Get-Date -Format "yyyyMMdd"  # Format the date as desired, e.g., "yyyyMMdd" for 20231018
+    $today = Get-Date -Format "yyyyMMdd"  # Format the date as desired, e.g., "yyyyMMdd" for 20231018.
     $ReportFileName = "dc_health_report_$DomainName`_$today`.html"
 }
 
@@ -93,7 +93,7 @@ $smtpsettings = @{
 
 }
 
-# This function gets all the domain controllers in a specified domain
+# This function gets all the domain controllers in a specified domain.
 Function Get-DomainControllers {
     param (
         [Alias("Domain")]
@@ -113,11 +113,9 @@ Function Get-DomainControllers {
     Write-Output $dcs
 }
 
-# Define cell formats
+# This function generates HTML code from the results of the above functions.
 Function New-ServerHealthHTMLTableCell {
-    param( 
-        $lineItem 
-    )
+    param( $lineItem )
     $htmlTableCell = $null
 
     switch ($($reportLine."$lineItem")) {
@@ -142,7 +140,7 @@ Function New-ServerHealthHTMLTableCell {
     Write-Output $htmlTableCell
 }
 
-# Map service names and display names
+# Map service names and display names.
 $services = @{
     "AzureADPasswordProtectionDCAgent" = "Azure AD Password Protection DC Agent Service"
     "AATPSensor"                       = "Azure Advanced Threat Protection Sensor Service"
@@ -160,31 +158,31 @@ $services = @{
     "PCNSSVC"                          = "Password Change Notification Service"
 }
 
-# Services which are only applied to RWDCs
+# Services which are only applied to RWDCs.
 $rwdcServices = @("AzureADPasswordProtectionDCAgent", "ErdAgent", "FRRstSvc", "PCNSSVC")
 $reportLine = @{}
 Write-Host "...testing domain" $DomainName -ForegroundColor Green
 
-# Get all domain controllers
+# Get all domain controllers.
 $allDCs = Get-DomainControllers -DomainName $DomainName
 $totalDCtoProcessCounter = $totalDCProcessCount = $allDCs.Count
 
 try {
-    # Loop through each domain controller
+    # Loop through each domain controller.
     foreach ($dc in $allDCs) {
         $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
         $dcName = $dc.Name
         Write-Host "`r[$totalDCtoProcessCounter of $totalDCProcessCount]...testing domain controller $dcName $([char]27)[0K" -ForegroundColor Cyan -NoNewline
         $OFS = "`r`n"
 
-        # Only perform the query on pingable desitination
+        # Only perform the query on pingable desitination.
         if (Test-Connection -ComputerName $dcName -Quiet) {
             $svcInfo = Get-Service -ComputerName $dcName
 
-            # Initialize the $reportLine hashtable for this domain controller
+            # Initialize the $reportLine hashtable for this domain controller.
             $reportLine[$dcName] = @{}
 
-            # Loop through each service
+            # Loop through each service.
             foreach ($serviceEntry in $services.GetEnumerator()) {
                 $originalServiceName = $serviceEntry.Key
                 $serviceName = $serviceEntry.Value
@@ -197,37 +195,37 @@ try {
                     continue
                 }
 
-                # Check if the service exists on the domain controller
+                # Check if the service exists on the domain controller.
                 if ($originalServiceName -in $svcInfo.Name) {
                     Write-Verbose "$originalServiceName is installed on $dcName"
                     try {
-                        # Get the current status of the service
+                        # Get the current status of the service.
                         $serviceStatus = ($svcInfo | Where-Object Name -EQ $originalServiceName).Status
                         Write-Verbose "Status of $originalServiceName is $serviceStatus"
 
-                        # Check if the service is not running
+                        # Check if the service is not running.
                         if ($serviceStatus -eq "Stopped") {
-                            # if the service is stopped, try to start it.
+                            # If the service is stopped, try to start it.
                             $action = Invoke-CimMethod -Query "SELECT * FROM Win32_Service WHERE Name = '$originalServiceName'" -MethodName "StartService" -CimSession $dcName
-                            # Update the service status
+                            # Update the service status.
                             if ($action.ReturnValue -eq 0) {
                                 $serviceStatus = "Started"
                                 Write-Verbose "Now the status is $serviceStatus"
                             }
                         }
 
-                        # Add the service status to the status report
+                        # Add the service status to the status report.
                         $reportLine[$dcName][$serviceName] = $serviceStatus
                     }
                     catch {
-                        # If there was an error starting the service, add the error message to the status report
+                        # If there was an error starting the service, add the error message to the status report.
                         $errorMessage = $_.Exception.Message
                         $reportLine[$dcName][$serviceName] = $errorMessage
                     }
                 }
                 else {
                     Write-Verbose "$originalServiceName isn't installed on $dcName"
-                    # Add the "Not Found" status to the status report
+                    # Add the "Not Found" status to the status report.
                     $reportLine[$dcName][$serviceName] = 'Not Found'
                 }
             }
@@ -285,12 +283,12 @@ try {
     }
 }
 catch {
-    # Handle any other exceptions that occur during the DC loop
+    # Handle any other exceptions that occur during the DC loop.
     $errMsg = $Error[0].Exception.Message
     Write-Host $errMsg -ForegroundColor Red
 }
 
-# Common HTML head and styles
+# Common HTML head and styles.
 $htmlhead = @"
 <html>
 <style>
@@ -369,7 +367,7 @@ $htmlhead = @"
     <h3 align="" left"">Generated: $reporTime</h3>
 "@
 
-# Domain Controller Health Report Table Header
+# Domain Controller Health Report Table Header.
 $htmlTableHeader = @"
 <h3>Domain Controller Health Summary</h3>
 <h3>Forest: $forestName </h3>
@@ -399,7 +397,7 @@ $htmlTableHeader = @"
     </tr>
 "@
 
-# Domain Controller Health Report Table
+# Domain Controller Health Report Table.
 $serverHealthHtmlTable = $serverHealthHtmlTable + $htmlTableHeader
 
 # This section will process through the $allTestedDomainControllers array object and create and colour the HTML table based on certain conditions.
@@ -471,6 +469,6 @@ if ($ReportFile) {
 }
 
 if ($SendEmail) {
-    # Send email message
+    # Send email message.
     Send-MailMessage @smtpsettings -Body $htmlreport -BodyAsHtml -Encoding ([System.Text.Encoding]::UTF8)
 }
