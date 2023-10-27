@@ -94,7 +94,7 @@ $smtpsettings = @{
 }
 
 # This function gets all the domain controllers in a specified domain.
-Function Get-DomainControllers {
+Function Get-AllDomainControllers {
     param (
         [Alias("Domain")]
         $DomainName,
@@ -164,7 +164,7 @@ $reportLine = @{}
 Write-Host "...testing domain" $DomainName -ForegroundColor Green
 
 # Get all domain controllers.
-$allDCs = Get-DomainControllers -DomainName $DomainName
+$allDCs = Get-AllDomainControllers -DomainName $DomainName
 $totalDCtoProcessCounter = $totalDCProcessCount = $allDCs.Count
 
 try {
