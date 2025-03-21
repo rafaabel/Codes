@@ -2,17 +2,12 @@
 .Synopsis
    Retrieve App Registrations secrets and certificates
 .DESCRIPTION
-   Retrieve App Registrations secrets and certificates that are going to expire soon from Microsoft Entra ID, build an email and notify the users
+   Check App Registrations secrets and certificates that are going to expire soon and notify users via email using SendGrid API
 .REQUIREMENTS
-   Create an App Registrations in Entra ID:
-   https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
-   Install the Microsoft Graph PowerShell SDK:
-   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-   Install and configure the SecretStore vault and then, add the secrets in this vault:
-   https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/how-to/using-secrets-in-automation?view=ps-modules
-   https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
-   Have SendGrid API key:
-   https://sendgrid.com/en-us/solutions/email-api
+   App Registrations: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
+   Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
+   SecretManagement and SecretStore modules: https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
+   SendGrid API Key: https://sendgrid.com/
 .AUTHOR
    Rafael Abel - rgonca10@ext.uber.com
 .DATE
@@ -25,15 +20,15 @@ $password = Import-CliXml -Path $securedPasswordPath
 Unlock-SecretStore -Password $password
  
 # Set tenantId, clientId and securedClientSecret by retrieving SendMailExpiredApplicationsSecret value from SecretStore vault
-$tenantId = "tenantId"
-$clientId = "clientId"
+$tenantId = "your-tenant-id"
+$clientId = "your-secret-id"
 $securedClientSecret = Get-Secret -Name "SendMailExpiredApplicationsSecret"
  
 # Create the ClientSecretCredential object
 $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $clientId, $securedClientSecret
  
 # Authenticate with Microsoft Graph
- Connect-MgGraph -TenantId $tenantId -ClientSecretCredential $ClientSecretCredential 
+Connect-MgGraph -TenantId $tenantId -ClientSecretCredential $ClientSecretCredential 
 
 # Define the date range for expiry
 $Today = Get-Date
@@ -81,7 +76,7 @@ $securedSendGridApiKey = Get-Secret -Name "SendGridApiKey"
 # Set email parameters
 $EmailFrom = "corpsys-alerts@uber.com"
 $EmailToAddresses = @("rgonca10@ext.uber.com")
-$Subject = "[ACTION] - Expiration Client Secrets and Certificates in Azure"
+$Subject = "[ACTION] - Expiration Client Secrets and Certificates in Entra"
 
 # HTML conversion
 $Header = @"
@@ -163,3 +158,6 @@ if ($Response.StatusCode -eq 202) {
     Write-Host "Failed to send email."
     Write-Host $Response
 }
+
+# Disconnect from Microsoft Graph
+Disconnect-MgGraph
