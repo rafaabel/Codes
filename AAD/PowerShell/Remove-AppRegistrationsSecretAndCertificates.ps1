@@ -4,8 +4,7 @@
 .DESCRIPTION
    Script to remove all App Registrations secrets and certificates with expiration date older than x days
 .REQUIREMENTS
-   Install the Microsoft Graph PowerShell SDK:
-   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
+   Install the Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
 .AUTHOR
    Rafael Abel - rgonca10@ext.uber.com
 .DATE
