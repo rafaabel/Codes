@@ -2,15 +2,11 @@
 .Synopsis
    Retrieve App Registrations secrets and certificates
 .DESCRIPTION
-   Retrieve App Registrations secrets and certificates that are going to expire soon from Microsoft Entra ID, build an email and notify the users
+   Check App Registrations secrets and certificates that are going to expire soon and notify users via email using SMTP
 .REQUIREMENTS
-   Create an App Registrations in Entra ID:
-   https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
-   Install the Microsoft Graph PowerShell SDK:
-   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-   Install and configure the SecretStore vault:
-   https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/how-to/using-secrets-in-automation?view=ps-modules
-   https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
+   App Registrations: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
+   Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
+   SecretManagement and SecretStore modules: https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
 .AUTHOR
    Rafael Abel - rgonca10@ext.uber.com
 .DATE
@@ -31,7 +27,7 @@ $securedClientSecret = Get-Secret -Name "SendMailExpiredApplicationsSecret"
 $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $clientId, $securedClientSecret
  
 # Authenticate with Microsoft Graph
- Connect-MgGraph -TenantId $tenantId -ClientSecretCredential $ClientSecretCredential 
+Connect-MgGraph -TenantId $tenantId -ClientSecretCredential $ClientSecretCredential 
 
 # Define the date range for expiry
 $Today = Get-Date
@@ -138,3 +134,6 @@ $Body = @"
 "@
 
 Send-MailMessage -smtpServer $SMTPServer -Credential $cred -Usessl -Port 587 -from $EmailFrom -to $EmailTo -subject $Subject -Body $Body -BodyAsHtml
+
+# Disconnect from Microsoft Graph
+Disconnect-MgGraph
