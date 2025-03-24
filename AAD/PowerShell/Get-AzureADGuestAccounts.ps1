@@ -17,7 +17,7 @@ Connect-MgGraph -Scopes "AuditLog.Read.All", "User.Read.All"
 
 # Fetch all guest users
 
-$guestUsers = Get-MgUser -Filter "userType eq 'Guest'" -Property "DisplayName,UserPrincipalName,UserType,CreationType,SignInActivity" -All
+$guestUsers = Get-MgUser -Filter "userType eq 'Guest'" -Property "DisplayName,UserPrincipalName,Id,UserType,CreationType,SignInActivity" -All
 
 # Filter users based on last interactive and non-interactive sign-ins within 90 days
 
