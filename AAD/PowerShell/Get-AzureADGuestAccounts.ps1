@@ -11,40 +11,39 @@
    03/19/2025
 #>
 
-# Connect to Microsoft Graph API
-
+# Connect to Microsoft Graph
 Connect-MgGraph -Scopes "AuditLog.Read.All", "User.Read.All"
 
 # Fetch all guest users
-
-$guestUsers = Get-MgUser -Filter "userType eq 'Guest'" -Property "DisplayName,UserPrincipalName,Id,UserType,CreationType,SignInActivity" -All
+$guestUsers = Get-MgUser -Filter "userType eq 'Guest'" -Property “Id,DisplayName,UserPrincipalName,UserType,CreationType,SignInActivity" -All
 
 # Filter users based on last interactive and non-interactive sign-ins within 90 days
-
 $cutoffDate = (Get-Date).AddDays(-90)
 
 $inactiveUsers = $guestUsers | Where-Object {
-
     $_.SignInActivity.LastSignInDateTime -lt $cutoffDate -and
-
     $_.SignInActivity.LastNonInteractiveSignInDateTime -lt $cutoffDate
-
 }
 
-# Export all guest users
+# Prepare an array to store user data along with their group memberships
+$results = @()
 
-$inactiveUsers | Select-Object `
+foreach ($user in $inactiveUsers) {
+    # Fetch group memberships for the user, ensuring display names are retrieved
+    $groups = Get-MgUserMemberOf -UserId $user.Id | % {($_.AdditionalProperties).displayName }
 
-    DisplayName, `
+    # Add user data along with groups to the results
+    $results += [PSCustomObject]@{
+        UserId                       = $user.Id
+        DisplayName                  = $user.DisplayName
+        UserPrincipalName            = $user.UserPrincipalName
+        UserType                     = $user.UserType
+        CreationType                 = $user.CreationType
+        LastInteractiveSignInTime    = $user.SignInActivity.LastSignInDateTime
+        LastNonInteractiveSignInTime = $user.SignInActivity.LastNonInteractiveSignInDateTime
+        GroupMemberships             = $groups -join "; "
+    }
+}
 
-    UserPrincipalName, `
-
-    UserType, `
-
-    CreationType, `
-
-    @{Name="LastInteractiveSignInTime"; Expression={$_.SignInActivity.LastSignInDateTime}}, `
-
-    @{Name="LastNonInteractiveSignInTime"; Expression={$_.SignInActivity.LastNonInteractiveSignInDateTime}} `
-
-| Export-Csv -Path "InactiveGuestUsers.csv" -NoTypeInformation -Encoding UTF8
+# Export the results to a CSV file
+$results | Export-Csv -Path "InactiveGuestUsersWithGroups.csv" -NoTypeInformation -Encoding UTF8
