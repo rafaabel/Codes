@@ -20,8 +20,8 @@ $password = Import-CliXml -Path $securedPasswordPath
 Unlock-SecretStore -Password $password
  
 # Set tenantId, clientId and securedClientSecret by retrieving SendMailExpiredApplicationsSecret value from SecretStore vault
-$tenantId = "5bd1450c-8b7b-4877-aab8-688d37a70b6e"
-$clientId = "8a076ac8-6174-4b0e-a3b2-15a4082a0dd8"
+$tenantId = "your-tenand-id
+$clientId = "your-client-id"
 $securedClientSecret = Get-Secret -Name "SendMailExpiredApplicationsSecret"
  
 # Create the ClientSecretCredential object
@@ -74,10 +74,10 @@ $Username = "svc-entraid-mail"
 $Password = Get-Secret -Name "SvcEntraIDMailPassword"
 
 # Postman email endpoint
-$PostmanApiUrl = "https://postmaster.uberinternal.com/email"
+$PostmanApiUrl = "https://postmanendpoint/email"
 
 # OAuth2 token endpoint
-$TokenEndpoint = "https://usso.uberinternal.com/oauth2/token"
+$TokenEndpoint = "https://tokenendpoint/oauth2/token"
 
 # Obtain access token
 $TokenRequestBody = @{
