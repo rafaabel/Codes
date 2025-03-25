@@ -1,3 +1,16 @@
+<#
+.Synopsis
+   Script to get all App Registrations secrets and certificates
+.DESCRIPTION
+   Script to get all App Registrations secrets and certificates with expiration date older than x days
+.REQUIREMENTS
+   Install the Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
+.AUTHOR
+   Rafael Abel - rgonca10@ext.uber.com
+.DATE
+   03/19/2025
+#>
+
 # Connect to Microsoft Graph
 Connect-MgGraph -Scopes "Application.Read.All", "User.Read.All"
 
