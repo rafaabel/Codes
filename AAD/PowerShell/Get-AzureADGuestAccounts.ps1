@@ -23,6 +23,7 @@ $cutoffDate = (Get-Date).AddDays(-90)
 $inactiveUsers = $guestUsers | Where-Object {
     $_.SignInActivity.LastSignInDateTime -lt $cutoffDate -and
     $_.SignInActivity.LastNonInteractiveSignInDateTime -lt $cutoffDate
+
 }
 
 # Prepare an array to store user data along with their group memberships
@@ -34,6 +35,7 @@ foreach ($user in $inactiveUsers) {
 
     # Add user data along with groups to the results
     $results += [PSCustomObject]@{
+
         UserId                       = $user.Id
         DisplayName                  = $user.DisplayName
         UserPrincipalName            = $user.UserPrincipalName
