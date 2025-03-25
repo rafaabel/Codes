@@ -46,10 +46,10 @@ $Username = "svc-entraid-mail"
 $Password = Get-Secret -Name "SvcEntraIDMailPassword"
 
 # Postman email endpoint
-$PostmanApiUrl = "https://postmasterendpoin/email"
+$PostmanApiUrl = "https://postmanendpoint/email"
 
 # OAuth2 token endpoint
-$TokenEndpoint = "https://tokenendpoint.com/oauth2/token"
+$TokenEndpoint = "https://tokenendpoint/oauth2/token"
 
 # Obtain access token
 $TokenRequestBody = @{
