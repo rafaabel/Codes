@@ -15,7 +15,7 @@
 Connect-MgGraph -Scopes "AuditLog.Read.All", "User.Read.All"
 
 # Fetch all guest users
-$guestUsers = Get-MgUser -Filter "userType eq 'Guest'" -Property “Id,DisplayName,UserPrincipalName,UserType,CreationType,SignInActivity" -All
+$guestUsers = Get-MgUser -Filter "userType eq 'Guest'" -Property "Id,DisplayName,UserPrincipalName,UserType,CreationType,CreatedDateTime,SignInActivity" -All
 
 # Filter users based on last interactive and non-interactive sign-ins within 90 days
 $cutoffDate = (Get-Date).AddDays(-90)
@@ -23,7 +23,6 @@ $cutoffDate = (Get-Date).AddDays(-90)
 $inactiveUsers = $guestUsers | Where-Object {
     $_.SignInActivity.LastSignInDateTime -lt $cutoffDate -and
     $_.SignInActivity.LastNonInteractiveSignInDateTime -lt $cutoffDate
-
 }
 
 # Prepare an array to store user data along with their group memberships
@@ -31,16 +30,16 @@ $results = @()
 
 foreach ($user in $inactiveUsers) {
     # Fetch group memberships for the user, ensuring display names are retrieved
-    $groups = Get-MgUserMemberOf -UserId $user.Id | % {($_.AdditionalProperties).displayName }
+    $groups = Get-MgUserMemberOf -UserId $user.Id | % {($_.AdditionalProperties).displayName}
 
     # Add user data along with groups to the results
     $results += [PSCustomObject]@{
-
         UserId                       = $user.Id
         DisplayName                  = $user.DisplayName
         UserPrincipalName            = $user.UserPrincipalName
         UserType                     = $user.UserType
         CreationType                 = $user.CreationType
+        CreationDate                 = $user.CreatedDateTime
         LastInteractiveSignInTime    = $user.SignInActivity.LastSignInDateTime
         LastNonInteractiveSignInTime = $user.SignInActivity.LastNonInteractiveSignInDateTime
         GroupMemberships             = $groups -join "; "
