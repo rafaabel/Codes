@@ -164,11 +164,11 @@ $Payload = @{
     from            = @{ email = $EmailFrom }
     subject         = $Subject
     content         = @(@{ type = "text/html"; value = $Body })
-} | ConvertTo-Json -Depth 10 -Compress
+}
 
 # Send the email using Postman API
 $Headers = @{ Authorization = "Bearer $AccessToken" }
-$Response = Invoke-RestMethod -Uri $PostmanApiUrl -Method Post -Headers $Headers -Body $Payload -ContentType "application/json"
+$Response = Invoke-RestMethod -Uri $PostmanApiUrl -Method Post -Headers $Headers -Body $Payload -ContentType "text/plain"
 
 # Output Response
 if ($Response.StatusCode -eq 202) {
