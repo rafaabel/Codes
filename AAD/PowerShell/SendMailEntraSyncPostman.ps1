@@ -41,26 +41,30 @@ function Get-EntraConnectSyncStatus {
     }
 }
 
-# Set service account credentials to authenticate in Oauth2 token endpoint by retrieving SvcEntraIDMailPassword value from SecretStore vault
-$Username = "svc-entraid-mail"
-$Password = Get-Secret -Name "SvcEntraIDMailPassword"
-
 # Postman email endpoint
-$PostmanApiUrl = "https://postmanendpoint/email"
+$PostmanApiUrl = "https://postmanendpoint.com/email"
 
 # OAuth2 token endpoint
-$TokenEndpoint = "https://tokenendpoint/oauth2/token"
+$TokenEndpoint = "https://tokenendpoint.com/oauth2/token"
 
-# Obtain access token
+# Base64 encode client_id and client_secret
+$oauth_app_client_id  = "your-oauth_app-client-id"
+$oauth_app_client_secret = "your-oauth_app-client-secret"
+$credentials = "${oauth_app_client_id}:${oauth_app_client_secret}"
+$encodedCredentials = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($credentials))
+
+# Token request Header
+$TokenRequestHeader = @{
+    Authorization = "Basic $encodedCredentials"
+}
+
+# Token request body
 $TokenRequestBody = @{
-    grant_type = "password"
-    username   = $Username
-    password   = $Password
-    oauth_app_client_id  = "your-oauth_app-client-id"
-    oauth_app_client_secret = "your-oauth_app-client-secret"
-} | ConvertTo-Json -Depth 10 -Compress
+    grant_type = "client_credentials"
+    audience = "postmanendpoint.com"
+}
 
-$TokenResponse = Invoke-RestMethod -Uri $TokenEndpoint -Method Post -Body $TokenRequestBody -ContentType "application/json"
+$TokenResponse = Invoke-RestMethod -Uri $TokenEndpoint -Method Post -Headers $TokenRequestHeader -Body $TokenRequestBody -ContentType "application/x-www-form-urlencoded"
 $AccessToken = $TokenResponse.access_token
 
 # Set email parameters
