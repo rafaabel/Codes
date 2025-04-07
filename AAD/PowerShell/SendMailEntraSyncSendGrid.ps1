@@ -77,11 +77,13 @@ if ($status.SyncDuration.TotalHours -gt 1) {
         from = @{ email = $EmailFrom }
         subject = $Subject
         content = @(@{ type = "text/html"; value = $Body })
-    } | ConvertTo-Json -Depth 10 -Compress
+    }
+
+    $JsonPayload = $Payload | ConvertTo-Json -Depth 10 
 
     # Send email using SendGrid
     $Headers = @{ Authorization = "Bearer $securedSendGridApiKey" }
-    $Response = Invoke-RestMethod -Uri $SendGridApiUrl -Method Post -Headers $Headers -Body $Payload -ContentType "application/json"
+    $Response = Invoke-RestMethod -Uri $SendGridApiUrl -Method Post -Headers $Headers -Body $JsonPayload -ContentType "application/json"
 
     # Output response
     if ($Response.StatusCode -eq 202) {
