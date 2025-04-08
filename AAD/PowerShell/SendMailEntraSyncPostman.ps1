@@ -30,14 +30,15 @@ $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCr
 # Authenticate with Microsoft Graph
 Connect-MgGraph -TenantId $tenantId -ClientSecretCredential $ClientSecretCredential
 
-# Function to check Entra Connect Sync status
 function Get-EntraConnectSyncStatus {
     # Retrieve tenant organization information
     $organization = Get-MgOrganization -OrganizationId $tenantId | Select-Object OnPremisesLastSyncDateTime
     # Extract the last sync date and time
     $lastSyncDateTime = $organization.OnPremisesLastSyncDateTime
+    # Convert local server time to UTC
+    $localTimeUTC = (Get-Date).ToUniversalTime()
     # Calculate the sync duration
-    $syncDuration = (Get-Date) - $lastSyncDateTime
+    $syncDuration = $localTimeUTC - $lastSyncDateTime
     return @{
         SyncDuration = $syncDuration
         LastSync     = $lastSyncDateTime
@@ -81,16 +82,23 @@ if ($status.SyncDuration.TotalHours -gt 1) {
     # Build email content
     $Body = @"
 <div>
+    <img src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400" 
+         alt="Descriptive Alt Text" 
+         width="177" 
+         style="display: block; margin: 0 auto;">
+</div>
+
+<div>
     <p>Hello,</p>
     <p>The Entra Connect sync process has exceeded 1 hour.</p>
     <table>
         <tr>
-            <th>Last Sync</th>
+            <th style="text-align: left; vertical-align: middle;">Last Sync</th>
             <td>$($status.LastSync)</td>
         </tr>
         <tr>
-            <th>Sync Duration (hours)</th>
-            <td>$($status.SyncDuration.TotalHours)</td>
+            <th style="text-align: left; vertical-align: middle;">Sync Duration (hours)</th>
+            <td>$($status.SyncDuration)</td>
         </tr>
     </table>
 </div>
