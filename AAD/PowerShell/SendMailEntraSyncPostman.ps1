@@ -32,12 +32,15 @@ Connect-MgGraph -TenantId $tenantId -ClientSecretCredential $ClientSecretCredent
 
 # Function to check Entra Connect Sync status
 function Get-EntraConnectSyncStatus {
-    $syncStatus = Get-MgDirectorySynchronization
-    $lastSyncDateTime = $syncStatus.Context.LastSyncDateTime
+    # Retrieve tenant organization information
+    $organization = Get-MgOrganization -OrganizationId $tenantId | Select-Object OnPremisesLastSyncDateTime
+    # Extract the last sync date and time
+    $lastSyncDateTime = $organization.OnPremisesLastSyncDateTime
+    # Calculate the sync duration
     $syncDuration = (Get-Date) - $lastSyncDateTime
     return @{
         SyncDuration = $syncDuration
-        LastSync = $lastSyncDateTime
+        LastSync     = $lastSyncDateTime
     }
 }
 
@@ -91,15 +94,6 @@ if ($status.SyncDuration.TotalHours -gt 1) {
         </tr>
     </table>
 </div>
-"@
-
-    # Combine into a Full HTML Document
-    $Body = @"
-<html>
-<body>
-    $BodyContent
-</body>
-</html>
 "@
 
     # Build JSON Payload for Postmaster
