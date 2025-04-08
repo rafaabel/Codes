@@ -156,17 +156,38 @@ $BodyContent = @"
 </div>
 "@
 
-$Body = $Header + $BodyContent
+# Combine into a Full HTML Document
+$Body = @"
+<html>
+<head>
+    $Header
+</head>
+<body>
+    $BodyContent
+</body>
+</html>
+"@
 
-# Build JSON Payload for Postman
-$Payload = @{
-    personalizations = @(@{ to = @($EmailToAddresses | ForEach-Object { @{ email = $_ } }) })
-    from            = @{ email = $EmailFrom }
-    subject         = $Subject
-    content         = @(@{ type = "text/html"; value = $Body })
+# Build JSON Payload for Postmaster
+$Payload = [ordered]@{
+    id          = [guid]::NewGuid().ToString()
+    fromEmail   = $EmailFrom
+    recipients  = [ordered]@{
+        to = [ordered]@{
+            emailAddress = $EmailToAddresses | ForEach-Object { $_ }
+        }
+    }
+    content     = [ordered]@{
+        rawEmail = [ordered]@{
+            subject  = $Subject
+            richBody = $Body
+        }
+    }
+    messageType = "internal"
 }
 
-$JsonPayload = $Payload | ConvertTo-Json -Depth 10
+# Convert the payload to JSON with custom depth
+$JsonPayload = $Payload | ConvertTo-Json -Depth 10 -Compress
 
 # Send the email using Postman API
 $Headers = @{ Authorization = "Bearer $AccessToken" }
