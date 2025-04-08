@@ -68,7 +68,7 @@ $TokenResponse = Invoke-RestMethod -Uri $TokenEndpoint -Method Post -Headers $To
 $AccessToken = $TokenResponse.access_token
 
 # Set email parameters
-$EmailFrom = "corpsys-alerts@uber.com"
+$EmailFrom = "uber@uber.com"
 $EmailToAddresses = @("rgonca10@ext.uber.com")
 $Subject = "Entra Connect Sync Duration Alert"
 
@@ -93,39 +93,54 @@ if ($status.SyncDuration.TotalHours -gt 1) {
 </div>
 "@
 
-# Build JSON Payload for Postmaster
-$Payload = [ordered]@{
-    id          = [guid]::NewGuid().ToString()
-    fromEmail   = $EmailFrom
-    recipients  = [ordered]@{
-        to = [ordered]@{
-            emailAddress = $EmailToAddresses | ForEach-Object { $_ }
-        }
-    }
-    content     = [ordered]@{
-        rawEmail = [ordered]@{
-            subject  = $Subject
-            richBody = $Body
-        }
-    }
-    messageType = "internal"
-}
+    # Combine into a Full HTML Document
+    $Body = @"
+<html>
+<body>
+    $BodyContent
+</body>
+</html>
+"@
 
-# Convert the payload to JSON with custom depth
-$JsonPayload = $Payload | ConvertTo-Json -Depth 10 -Compress
+    # Build JSON Payload for Postmaster
+    $Payload = [ordered]@{
+        id          = [guid]::NewGuid().ToString()
+        fromEmail   = $EmailFrom
+        recipients  = [ordered]@{
+            to = [ordered]@{
+                emailAddress = $EmailToAddresses | ForEach-Object { $_ }
+            }
+        }
+        content     = [ordered]@{
+            rawEmail = [ordered]@{
+                subject  = $Subject
+                richBody = $Body
+            }
+        }
+        messageType = "internal"
+    }
 
-    # Send the email using Postman API
-    $Headers = @{ Authorization = "Bearer $AccessToken" }
-    $Response = Invoke-RestMethod -Uri $PostmanApiUrl -Method Post -Headers $Headers -Body $JsonPayload -ContentType "application/json"
+    # Convert the payload to JSON with custom depth
+    $JsonPayload = $Payload | ConvertTo-Json -Depth 10 -Compress
+
+    # Send the email using Postmaster API
+    $Headers = @{ 
+        Authorization  = "Bearer $AccessToken"
+        "Content-Type" = "text/plain"
+    }
+
+    $Response = Invoke-RestMethod -Uri $PostmasterApiUrl -Method Post -Headers $Headers -Body $JsonPayload -ContentType "application/json"
+    #Write-Host "Raw Response Content: $($Response.Content)" 
 
     # Output Response
     if ($Response.StatusCode -eq 202) {
         Write-Host "Email sent successfully."
-    } else {
+    }
+    else {
         Write-Host "Failed to send email."
         Write-Host $Response
     }
- }
+}
  
 # Disconnect from Microsoft Graph
 Disconnect-MgGraph
