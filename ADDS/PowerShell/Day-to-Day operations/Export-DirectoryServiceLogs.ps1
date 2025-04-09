@@ -13,31 +13,22 @@
 #>
 
 # Create C:\LDAP_Performance_Data folder if does not exist
-
 if (-not (Test-Path -Path "C:\LDAP_Performance_Data")) {
-
     New-Item -ItemType Directory -Path "C:\LDAP_Performance_Data" | Out-Null
-
 }
-
+     
 # Generate a file name with a timestamp
-
+$outputDir = "C:\LDAP_Performance_Data"
+$logName = "Directory Service"
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-
 $outputFile = Join-Path -Path $outputDir -ChildPath "$logName`_$timestamp.evtx"
-
+     
 # Export the logs
-
 try {
-
     Write-Host "Exporting '$logName' logs to '$outputFile'..."
-
     Wevtutil epl "$logName" "$outputFile"
-
     Write-Host "Export successful!"
-
-} catch {
-
+}
+catch {
     Write-Host "An error occurred: $_"
-
 }
