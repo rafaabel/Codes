@@ -79,9 +79,11 @@ $Subject = "Entra Connect Sync Duration Alert"
 # Check sync status
 $status = Get-EntraConnectSyncStatus
 if ($status.SyncDuration.TotalHours -gt 1) {
+    # Format SyncDuration to exclude milliseconds
+    $formattedSyncDuration = $status.SyncDuration.ToString("hh\:mm\:ss") 
     # Build email content
     $Body = @"
- <head>
+  <head>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
 </head>
 <body style="font-family: 'Montserrat', sans-serif; font-size: 18px;">
@@ -97,15 +99,15 @@ if ($status.SyncDuration.TotalHours -gt 1) {
         <p>The Entra Connect sync process has exceeded 1 hour.</p>
         <table style="width: 100%; border-collapse: collapse;">
             <tr>
-                <th style="text-align: left; vertical-align: middle; padding: 8px;">Last Sync</th>
+                <th style="text-align: left; vertical-align: middle; padding: 8px;">Last Sync (UTC)</th>
                 <td style="padding: 8px;">$($status.LastSync)</td>
             </tr>
             <tr>
-                <th style="text-align: left; vertical-align: middle; padding: 8px;">Sync Duration (hours)</th>
-                <td style="padding: 8px;">$($status.SyncDuration)</td>
+                <th style="text-align: left; vertical-align: middle; padding: 8px;">Sync Duration (hh\mm\ss)</th>
+                <td style="padding: 8px;">$($formattedSyncDuration)</td> 
             </tr>
         </table>
-    </div>  
+    </div> 
 "@
 
     # Build JSON Payload for Postmaster
