@@ -68,6 +68,9 @@ foreach ($App in $Applications) {
     }
 }
 
+# Disconnect from Microsoft Graph
+Disconnect-MgGraph
+
 # HTML conversion
 $Header = @"
 <style>
@@ -84,7 +87,7 @@ $SMTPServer = "smtp.office365.com"
 $EmailFrom = "corpsys-alerts@uber.com"
 $EmailToAddresses = @("rgonca10@ext.uber.com")
 $EmailTo = $EmailToAddresses
-$Subject = "[ACTION] - Expiration Client Secrets and Certificates in Azure"
+$Subject = "[ACTION] - Expiration of client secrets and certificates in Microsoft Entra ID"
 
 $Body = @"
 <div class="box flex">
@@ -135,6 +138,3 @@ $Body = @"
 "@
 
 Send-MailMessage -smtpServer $SMTPServer -Credential $cred -Usessl -Port 587 -from $EmailFrom -to $EmailTo -subject $Subject -Body $Body -BodyAsHtml
-
-# Disconnect from Microsoft Graph
-Disconnect-MgGraph
