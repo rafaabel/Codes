@@ -115,7 +115,7 @@ $Body = @"
 							<p>
 								<span style="font-size: 18px;"><span class="font-montserrat"><strong>What do you need to know?</strong></span></span></p>
 							<p>
-								<span style="font-size: 18px;"><span class="font-montserrat">Client secrets and certificates are used by applications, web applications and service principals for authenticating in the cloud and consuming information and services like APIs, Data lakes, &nbsp;etc.</span></span></p>
+								<span style="font-size: 18px;"><span class="font-montserrat">Client secrets and certificates are used by applications, web applications and service principals for authenticating in the cloud and consuming information and services like APIs, Data lakes, etc.</span></span></p>
 							<p>
 								<span style="font-size: 18px;"><span class="font-montserrat">If your application is using one of those credentials, it will <strong>STOP </strong>once this credential expires.</span></span></p>
 							<p>
