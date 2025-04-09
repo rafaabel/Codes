@@ -105,7 +105,7 @@ if ($status.SyncDuration.TotalHours -gt 1) {
                 <td style="padding: 8px;">$($status.SyncDuration)</td>
             </tr>
         </table>
-    </div> 
+    </div>  
 "@
 
     # Build JSON Payload for Postmaster
