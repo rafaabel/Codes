@@ -103,6 +103,7 @@ $Subject = "[ACTION] - Expiration of client secrets and certificates in Microsof
 # HTML conversion
 $Header = @"
 <style>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
 TABLE {border-width: 1px; border-style: solid; border-color: black; border-collapse: collapse; align="right"}
 TH {border-width: 1px; padding: 3px; border-style: solid; border-color: black; background-color: white;}
 TD {border-width: 1px; padding: 3px; border-style: solid; border-color: black;}
