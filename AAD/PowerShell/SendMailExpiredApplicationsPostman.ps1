@@ -69,6 +69,9 @@ foreach ($App in $Applications) {
     }
 }
 
+# Disconnect from Microsoft Graph
+Disconnect-MgGraph
+
 # Postman email endpoint
 $PostmanApiUrl = "https://postmanendpoint.com/email"
 
@@ -95,7 +98,7 @@ $TokenRequestBody = @{
 # Set email parameters
 $EmailFrom = "corpsys-alerts@uber.com"
 $EmailToAddresses = @("rgonca10@ext.uber.com")
-$Subject = "[ACTION] - Expiration Client Secrets and Certificates in Entra"
+$Subject = "[ACTION] - Expiration of client secrets and certificates in Microsoft Entra ID"
 
 # HTML conversion
 $Header = @"
@@ -200,6 +203,3 @@ if ($Response.StatusCode -eq 202) {
     Write-Host "Failed to send email."
     Write-Host $Response
 }
-
-# Disconnect from Microsoft Graph
-Disconnect-MgGraph
