@@ -133,7 +133,7 @@ $BodyContent = @"
 							<p>
 								<span style="font-size: 18px;"><span class="font-montserrat"><strong>What is expected of you?</strong></span></span></p>
 							<p>
-								<span style="font-size: 18px;"><span class="font-montserrat">If you are the owner of this object and need to create a new client secret or certificate, please raise a new automated request&nbsp;<a href="https://uberhub.uberinternal.com/now/nav/ui/classic/params/target/uberhub">here</a>. Search for your app using your Application Name and choose the Credential Type, submit form and then your Manager is going to receive an e-mail with new generated credential.</span></span></p>
+								<span style="font-size: 18px;"><span class="font-montserrat">If you are the owner of this object and need to create a new client secret or certificate, please raise a new request&nbsp;<a href="https://uberhub.uberinternal.com/now/nav/ui/classic/params/target/uberhub">here</a>. Submit the form and request your manager approval, you are going to receive the credential via Uber OTS.</span></span></p>
 							<p>
 								<span style="font-size: 18px;"><span class="font-montserrat"><strong>What do you need to know?</strong></span></span></p>
 							<p>
