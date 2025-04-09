@@ -58,29 +58,35 @@ $Subject = "Entra Connect Sync Duration Alert"
 # Check sync status
 $status = Get-EntraConnectSyncStatus
 if ($status.SyncDuration.TotalHours -gt 1) {
+    # Format SyncDuration to exclude milliseconds
+    $formattedSyncDuration = $status.SyncDuration.ToString("hh\:mm\:ss") 
     # Build email content
     $Body = @"
-<div>
-    <img src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400" 
-         alt="Descriptive Alt Text" 
-         width="177" 
-         style="display: block; margin: 0 auto;">
-</div>
+  <head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Montserrat', sans-serif; font-size: 18px;">
+    <div>
+        <img src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400" 
+             alt="Descriptive Alt Text" 
+             width="177" 
+             style="display: block; margin: 0 auto;">
+    </div>
 
-<div>
-    <p>Hello,</p>
-    <p>The Entra Connect sync process has exceeded 1 hour.</p>
-    <table>
-        <tr>
-            <th style="text-align: left; vertical-align: middle;">Last Sync</th>
-            <td>$($status.LastSync)</td>
-        </tr>
-        <tr>
-            <th style="text-align: left; vertical-align: middle;">Sync Duration (hours)</th>
-            <td>$($status.SyncDuration)</td>
-        </tr>
-    </table>
-</div>
+    <div>
+        <p>Hello,</p>
+        <p>The Entra Connect sync process has exceeded 1 hour.</p>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <th style="text-align: left; vertical-align: middle; padding: 8px;">Last Sync (UTC)</th>
+                <td style="padding: 8px;">$($status.LastSync)</td>
+            </tr>
+            <tr>
+                <th style="text-align: left; vertical-align: middle; padding: 8px;">Sync Duration (hh\mm\ss)</th>
+                <td style="padding: 8px;">$($formattedSyncDuration)</td> 
+            </tr>
+        </table>
+    </div> 
 "@
 
     # Build JSON payload for SendGrid
