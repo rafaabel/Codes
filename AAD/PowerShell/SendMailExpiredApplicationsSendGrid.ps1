@@ -69,6 +69,9 @@ foreach ($App in $Applications) {
     }
 }
 
+# Disconnect from Microsoft Graph
+Disconnect-MgGraph
+
 # Set SendGrid API details
 $SendGridApiUrl = "https://api.sendgrid.com/v3/mail/send"
 $securedSendGridApiKey = Get-Secret -Name "SendGridApiKey"
@@ -76,7 +79,7 @@ $securedSendGridApiKey = Get-Secret -Name "SendGridApiKey"
 # Set email parameters
 $EmailFrom = "corpsys-alerts@uber.com"
 $EmailToAddresses = @("rgonca10@ext.uber.com")
-$Subject = "[ACTION] - Expiration Client Secrets and Certificates in Entra"
+$Subject = "[ACTION] - Expiration of client secrets and certificates in Microsoft Entra ID"
 
 # HTML conversion
 $Header = @"
@@ -160,6 +163,3 @@ if ($Response.StatusCode -eq 202) {
     Write-Host "Failed to send email."
     Write-Host $Response
 }
-
-# Disconnect from Microsoft Graph
-Disconnect-MgGraph
