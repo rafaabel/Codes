@@ -20,7 +20,7 @@ $password = Import-CliXml -Path $securedPasswordPath
 Unlock-SecretStore -Password $password
 
 # Set tenantId, clientId and securedClientSecret by retrieving SendMailExpiredApplicationsSecret value from SecretStore vault
-$tenantId = "your-tenand-id
+$tenantId = "your-tenand-id"
 $clientId = "your-client-id"
 $securedClientSecret = Get-Secret -Name "SendMailEntraSyncSecret"
 
