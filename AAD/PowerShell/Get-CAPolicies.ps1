@@ -199,4 +199,4 @@ $pivotTable = foreach ($prop in $properties) {
     [pscustomobject]$row
 }
 
-$pivotTable | Export-Csv -Path ".\CA-Policies-Pivot.csv" -NoTypeInformation -Encoding UTF8
+$pivotTable | Export-Csv -Path ".\CA-Policies.csv" -NoTypeInformation -Encoding UTF8
