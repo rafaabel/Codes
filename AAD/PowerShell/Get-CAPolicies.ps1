@@ -1,3 +1,4 @@
+
 <#
 .Synopsis
    Get CA policies details from Entra ID
@@ -9,21 +10,14 @@
 .DATE
    08/15/2025
 #>
-# Connect to Graph
+
+Import-Module Microsoft.Graph.Identity.SignIns
+Import-Module Microsoft.Graph.Applications
+Import-Module Microsoft.Graph.Users
+
 Connect-MgGraph -Scopes "Policy.Read.All","Directory.Read.All"
 
-# Cache roles and role templates
-$rolesActive   = Get-MgDirectoryRole | Select-Object Id, DisplayName
-$rolesTemplate = Get-MgDirectoryRoleTemplate | Select-Object Id, DisplayName
-
-# Cache apps for lookup
-$apps = Get-MgServicePrincipal -All | Select-Object Id, DisplayName, AppId
-
-# Cache named locations
-$locations = Get-MgIdentityConditionalAccessNamedLocation | Select-Object Id, DisplayName
-
-# --- Helper: Resolve Users/Groups ---
-function Resolve-ObjectNames {
+function Resolve-Objects {
     param($ids)
     $names = @()
     foreach ($id in $ids) {
@@ -49,7 +43,6 @@ function Resolve-ObjectNames {
     return ($names -join "; ")
 }
 
-# --- Helper: Resolve Roles ---
 function Resolve-Roles {
     param($ids)
     $roleNames = @()
@@ -65,149 +58,145 @@ function Resolve-Roles {
     return ($roleNames -join "; ")
 }
 
-# --- Helper: Resolve Apps ---
-function Resolve-Apps {
-    param($ids)
-    $appNames = @()
-    foreach ($id in $ids) {
-        switch ($id) {
-            "All"       { $appNames += "All Apps" }
-            "None"      { $appNames += "None" }
-            "Office365" { $appNames += "Office 365" }
-            default {
-                $app = $apps | Where-Object { $_.Id -eq $id }
-                if ($app) { $appNames += $app.DisplayName }
-                else { $appNames += $id }
+function Resolve-Apps($ids) {
+    if (-not $ids) { return $null }
+
+    # Well-known Microsoft app IDs
+    $knownApps = @{
+        "797f4846-ba00-4fd7-ba43-dac1f8f63013" = "Windows Azure Service Management API"
+        "00000002-0000-0ff1-ce00-000000000000" = "Microsoft Graph"
+        "00000003-0000-0000-c000-000000000000" = "Office 365 SharePoint Online"
+        "00000002-0000-0ff1-0000-000000000000" = "Exchange Online"
+        "00000007-0000-0000-c000-000000000000" = "Microsoft Teams"
+    }
+
+    $names = foreach ($id in $ids) {
+        if ($id -in @("All", "None", "Office365", "MicrosoftAdminPortals")) {
+            $id
+        }
+        elseif ($knownApps.ContainsKey($id)) {
+            $knownApps[$id]
+        }
+        else {
+            try {
+                (Get-MgServicePrincipal -ServicePrincipalId $id).DisplayName
             }
+            catch { $id }
         }
     }
-    return ($appNames -join "; ")
+
+    $names -join "; "
 }
 
-# --- Helper: Resolve Locations ---
-function Resolve-Locations {
-    param($ids)
-    $locNames = @()
-    foreach ($id in $ids) {
-        switch ($id) {
-            "All"  { $locNames += "All Locations" }
-            "None" { $locNames += "None" }
-            default {
-                $loc = $locations | Where-Object { $_.Id -eq $id }
-                if ($loc) { $locNames += $loc.DisplayName }
-                else { $locNames += $id }
+function Resolve-Locations($ids) {
+    if (-not $ids) { return $null }
+    $names = foreach ($id in $ids) {
+        # If it's a GUID, try to resolve
+        if ($id -match '^[0-9a-fA-F-]{36}$') {
+            try { 
+                (Get-MgIdentityConditionalAccessNamedLocation -NamedLocationId $id).DisplayName 
             }
+            catch { $id } # fallback raw
+        }
+        else {
+            # keywords like All, None, AllTrusted, Selected
+            $id
         }
     }
-    return ($locNames -join "; ")
+    $names -join "; "
 }
 
 # --- Get all CA policies ---
-$policies = Get-MgIdentityConditionalAccessPolicy -All
-
+$policies = Get-MgIdentityConditionalAccessPolicy
 $results = @()
 
-foreach ($policy in $policies) {
+foreach ($p in $policies) {
+    $obj = [ordered]@{
+        PolicyName                        = $p.DisplayName
+        Description                       = $p.Description
+        CreationTime                      = $p.CreatedDateTime
+        ModifiedTime                      = $p.ModifiedDateTime
+        State                             = $p.State
 
-    # Users / Groups / Roles
-    $includeUsers   = Resolve-ObjectNames $policy.Conditions.Users.IncludeUsers
-    $excludeUsers   = Resolve-ObjectNames $policy.Conditions.Users.ExcludeUsers
-    $includeGroups  = Resolve-ObjectNames $policy.Conditions.Users.IncludeGroups
-    $excludeGroups  = Resolve-ObjectNames $policy.Conditions.Users.ExcludeGroups
-    $includeRoles   = Resolve-Roles $policy.Conditions.Users.IncludeRoles
-    $excludeRoles   = Resolve-Roles $policy.Conditions.Users.ExcludeRoles
+        IncludeUsers                      = Resolve-Objects $p.Conditions.Users.IncludeUsers
+        ExcludeUsers                      = Resolve-Objects $p.Conditions.Users.ExcludeUsers
+        IncludeGroups                     = Resolve-Objects $p.Conditions.Users.IncludeGroups
+        ExcludeGroups                     = Resolve-Objects $p.Conditions.Users.ExcludeGroups
+        IncludeRoles                      = Resolve-Roles $p.Conditions.Users.IncludeRoles
+        ExcludeRoles                      = Resolve-Roles $p.Conditions.Users.ExcludeRoles
+        IncludeGuestOrExternalUsers       = $p.Conditions.Users.IncludeGuestsOrExternalUsers.GuestOrExternalUserTypes
+        ExcludeGuestOrExternalUsers       = $p.Conditions.Users.ExcludeGuestsOrExternalUsers.GuestOrExternalUserTypes
+        IncludeApplications               = Resolve-Apps $p.Conditions.Applications.IncludeApplications
+        ExcludeApplications               = Resolve-Apps $p.Conditions.Applications.ExcludeApplications
 
-    # Target Apps
-    $includeApps    = Resolve-Apps $policy.Conditions.Applications.IncludeApplications
-    $excludeApps    = Resolve-Apps $policy.Conditions.Applications.ExcludeApplications
+        UserAction                        = ($p.Conditions.UserActions -join "; ")
+        UserRisk                          = ($p.Conditions.UserRiskLevels -join "; ")
+        SigninRisk                        = ($p.Conditions.SignInRiskLevels -join "; ")
 
-    # Named Locations
-    $includeLoc     = Resolve-Locations $policy.Conditions.Locations.IncludeLocations
-    $excludeLoc     = Resolve-Locations $policy.Conditions.Locations.ExcludeLocations
+        ClientApps                        = ($p.Conditions.ClientAppTypes -join "; ")
+        IncludeDevicePlatform             = ($p.Conditions.Platforms.IncludePlatforms -join "; ")
+        ExcludeDevicePlatform             = ($p.Conditions.Platforms.ExcludePlatforms -join "; ")
 
-    # Platforms, Client Apps, Risks
-    $platforms      = ($policy.Conditions.Platforms.IncludePlatforms -join "; ")
-    $excludePlat    = ($policy.Conditions.Platforms.ExcludePlatforms -join "; ")
-    $clientApps     = ($policy.Conditions.ClientAppTypes -join "; ")
-    $signInRisk     = ($policy.Conditions.SignInRiskLevels -join "; ")
-    $userRisk       = ($policy.Conditions.UserRiskLevels -join "; ")
+        IncludeLocations                  = Resolve-Locations $p.Conditions.Locations.IncludeLocations
+        ExcludeLocations                  = Resolve-Locations $p.Conditions.Locations.ExcludeLocations
 
-    # Device filters / states
-    $deviceFilters = @()
-    if ($policy.Conditions.Devices) {
-        if ($policy.Conditions.Devices.IncludeDeviceStates) {
-            $deviceFilters += "IncludeDeviceStates: " + ($policy.Conditions.Devices.IncludeDeviceStates -join "; ")
-        }
-        if ($policy.Conditions.Devices.ExcludeDeviceStates) {
-            $deviceFilters += "ExcludeDeviceStates: " + ($policy.Conditions.Devices.ExcludeDeviceStates -join "; ")
-        }
-        if ($policy.Conditions.Devices.DeviceFilter) {
-            $deviceFilters += "DeviceFilter: " + ($policy.Conditions.Devices.DeviceFilter | ConvertTo-Json -Compress)
-        }
+        AccessControl                     = ($p.GrantControls.BuiltInControls -join "; ")
+        AccessControlOperator             = $p.GrantControls.Operator
+        AuthenticationStrength            = $p.GrantControls.AuthenticationStrength.DisplayName
+        AuthenticationStrengthAllowedCombo = ($p.GrantControls.AuthenticationStrength.AllowedCombinations -join "; ")
+
+        AppEnforcedRestrictionEnabled     = $p.SessionControls.AppEnforcedRestrictions.IsEnabled
+        CloudAppSecurity                  = $p.SessionControls.CloudAppSecurity.CloudAppSecurityType
+        CAEMode                           = $p.SessionControls.ContinuousAccessEvaluationMode
+        DisableResilienceDefaults         = $p.SessionControls.DisableResilienceDefaults
+        IsSigninFrequencyEnabled          = $p.SessionControls.SignInFrequency.IsEnabled
+        SigningFrequencyValue             = $p.SessionControls.SignInFrequency.Value
     }
-
-    # Authentication Flows
-    $authFlows = @()
-    if ($policy.Conditions.AuthenticationStrength) {
-        if ($policy.Conditions.AuthenticationStrength.IncludeAuthenticationStrengths) {
-            $authFlows += "IncludeAuthenticationStrengths: " + ($policy.Conditions.AuthenticationStrength.IncludeAuthenticationStrengths -join "; ")
-        }
-        if ($policy.Conditions.AuthenticationStrength.ExcludeAuthenticationStrengths) {
-            $authFlows += "ExcludeAuthenticationStrengths: " + ($policy.Conditions.AuthenticationStrength.ExcludeAuthenticationStrengths -join "; ")
-        }
-    }
-
-    $conditionsFull = @(
-        "Platforms: $platforms",
-        "ExcludePlatforms: $excludePlat",
-        "Locations: $includeLoc",
-        "ExcludeLocations: $excludeLoc",
-        "ClientApps: $clientApps",
-        "SignInRisk: $signInRisk",
-        "UserRisk: $userRisk",
-        ($deviceFilters -join "; "),
-        ($authFlows -join "; ")
-    ) -join " | "
-
-    # Grant Controls
-    $grantAction = ""
-    if ($policy.GrantControls) {
-        if ($policy.GrantControls.BuiltInControls -contains "block") {
-            $grantAction = "Block Access"
-        }
-        elseif ($policy.GrantControls.BuiltInControls) {
-            $grantAction = "Grant Access: " + ($policy.GrantControls.BuiltInControls -join "; ")
-        }
-        elseif ($policy.GrantControls.CustomAuthenticationFactors) {
-            $grantAction = "Grant Access: Custom Factors - " + ($policy.GrantControls.CustomAuthenticationFactors -join "; ")
-        }
-    }
-
-    # Session Controls
-    $session = @()
-    if ($policy.SessionControls) {
-        if ($policy.SessionControls.ApplicationEnforcedRestrictions.IsEnabled) { $session += "AppEnforcedRestrictions" }
-        if ($policy.SessionControls.PersistentBrowser.IsEnabled) { $session += "PersistentBrowser=$($policy.SessionControls.PersistentBrowser.Mode)" }
-        if ($policy.SessionControls.SignInFrequency.IsEnabled) { $session += "SignInFrequency=$($policy.SessionControls.SignInFrequency.Value) $($policy.SessionControls.SignInFrequency.Type)" }
-        if ($policy.SessionControls.CloudAppSecurity.IsEnabled) { $session += "CloudAppSecurity=$($policy.SessionControls.CloudAppSecurity.CloudAppSecurityType)" }
-    }
-
-    $results += [pscustomobject]@{
-        PolicyName      = $policy.DisplayName
-        State           = $policy.State
-        IncludeUsers    = $includeUsers
-        ExcludeUsers    = $excludeUsers
-        IncludeGroups   = $includeGroups
-        ExcludeGroups   = $excludeGroups
-        IncludeRoles    = $includeRoles
-        ExcludeRoles    = $excludeRoles
-        IncludeApps     = $includeApps
-        ExcludeApps     = $excludeApps
-        Conditions      = $conditionsFull
-        GrantControls   = $grantAction
-        SessionControls = ($session -join "; ")
-    }
+    $results += [pscustomobject]$obj
 }
 
-# Export to CSV
-$results | Export-Csv -Path ".\CA-Policies.csv" -NoTypeInformation -Encoding UTF8
+# --- Pivoted Export ---
+$properties = @(
+    'Description',
+    'CreationTime',
+    'ModifiedTime',
+    'State',
+    'IncludeUsers',
+    'ExcludeUsers',
+    'IncludeGroups',
+    'ExcludeGroups',
+    'IncludeRoles',
+    'ExcludeRoles',
+    'IncludeGuestOrExternalUsers',
+    'ExcludeGuestOrExternalUsers',
+    'IncludeApplications',
+    'ExcludeApplications',
+    'UserAction',
+    'UserRisk',
+    'SigninRisk',
+    'ClientApps',
+    'IncludeDevicePlatform',
+    'ExcludeDevicePlatform',
+    'IncludeLocations',
+    'ExcludeLocations',
+    'AccessControl',
+    'AccessControlOperator',
+    'AuthenticationStrength',
+    'AuthenticationStrengthAllowedCombo',
+    'AppEnforcedRestrictionEnabled',
+    'CloudAppSecurity',
+    'CAEMode',
+    'DisableResilienceDefaults',
+    'IsSigninFrequencyEnabled',
+    'SigningFrequencyValue'
+)
+
+$pivotTable = foreach ($prop in $properties) {
+    $row = [ordered]@{ Property = $prop }
+    foreach ($policy in $results) {
+        $row[$policy.PolicyName] = $policy.$prop
+    }
+    [pscustomobject]$row
+}
+
+$pivotTable | Export-Csv -Path ".\CA-Policies-Pivot.csv" -NoTypeInformation -Encoding UTF8
