@@ -1,0 +1,24 @@
+<#
+.Synopsis
+   Export Microsoft 365 cloud-only group activity and governance details
+.DESCRIPTION
+   This script connects to Microsoft Graph, retrieves the activity report for Microsoft 365 cloud-only groups
+   The output is saved to a CSV file for reporting and auditing purposes
+.REQUIREMENTS
+   Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
+.AUTHOR
+   Rafael Abel - rgonca10@ext.uber.com
+.DATE
+   2025-09-17
+#>
+
+# Connect to Microsoft Graph
+Connect-MgGraph -Scopes "Reports.Read.All","Group.Read.All","Directory.Read.All"
+
+# Download M365 groups activity report (last 180 days)
+Write-Host "Downloading Microsoft 365 groups activity report..."
+$tempFile = ".\Microsoft365GroupsActivity.csv"
+
+Invoke-MgGraphRequest -Method GET `
+    -Uri "https://graph.microsoft.com/v1.0/reports/getOffice365GroupsActivityDetail(period='D180')" `
+    -OutputFilePath $tempFile
