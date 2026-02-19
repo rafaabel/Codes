@@ -1,8 +1,8 @@
 <#
 .Synopsis
-   Copy group members from one Active Diretory security group to another
+   Copy group members from one Active Directory security group to another
 .DESCRIPTION
-   This script copy group members from one Active Diretory security group to another
+   This script copy group members from one Active Directory security group to another
 .REQUIREMENTS
    ActiveDirectory Module: https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
 .AUTHOR
