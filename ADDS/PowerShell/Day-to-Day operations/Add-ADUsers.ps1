@@ -1,8 +1,8 @@
 <#
 .Synopsis
-   Add users to Active Diretory security group given a user list
+   Add users to Active Directory security group given a user list
 .DESCRIPTION
-   This script is to add users to Active Diretory security group given a user list
+   This script is to add users to Active Directory security group given a user list
 .REQUIREMENTS
    ActiveDirectory Module: https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
 .AUTHOR
