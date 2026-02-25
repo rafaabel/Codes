@@ -33,7 +33,6 @@ $Duplicates = @()
 $Errors = @()
 
 # Process
-
 foreach ($SamAccount in $Users) {
 
     $FoundUsers = Get-ADUser -Filter "SamAccountName -eq '$SamAccount'"
