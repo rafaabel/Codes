@@ -40,11 +40,14 @@ $Errors = @()
 foreach ($UPN in $Users) {
 
     try {
-        # Find user via UPN (fast lookup)
-        $User = Get-ADUser -Identity $UPN -ErrorAction Stop
+       # Escape single quotes to avoid filter breaking
+       $SafeUPN = $UPN.Replace("'", "''")
+
+       # Search by full UPN
+       $User = Get-ADUser -Filter "UserPrincipalName -eq '$SafeUPN'" -ErrorAction SilentlyContinue
     }
     catch {
-        Write-Warning "NOT FOUND: $UPN"
+        Write-Warning "Not found: $UPN"
         $NotFound += $UPN
         continue
     }
@@ -62,7 +65,7 @@ foreach ($UPN in $Users) {
         $Added += $UPN
     }
     catch {
-        Write-Warning "ERROR ADDING: $UPN"
+        Write-Warning "Error addding: $UPN"
         $Errors += "$UPN - $($_.Exception.Message)"
     }
 }
@@ -75,19 +78,19 @@ $LogContent += "Group: $GroupName"
 $LogContent += "Total Processed: $($Users.Count)"
 $LogContent += "================================================="
 
-$LogContent += "`nUSERS ADDED:"
+$LogContent += "`nUsers Added:"
 $LogContent += if ($Added.Count -eq 0) { "None" } else { $Added }
 
 $LogContent += "`n================================================="
-$LogContent += "ALREADY MEMBERS:"
+$LogContent += "Already Members:"
 $LogContent += if ($AlreadyMember.Count -eq 0) { "None" } else { $AlreadyMember }
 
 $LogContent += "`n================================================="
-$LogContent += "USERS NOT FOUND:"
+$LogContent += "Users not found:"
 $LogContent += if ($NotFound.Count -eq 0) { "None" } else { $NotFound }
 
 $LogContent += "`n================================================="
-$LogContent += "ERRORS:"
+$LogContent += "Errors:"
 $LogContent += if ($Errors.Count -eq 0) { "None" } else { $Errors }
 
 $LogContent | Out-File -FilePath $LogFile -Encoding UTF8
