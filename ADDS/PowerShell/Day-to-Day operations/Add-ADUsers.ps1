@@ -18,87 +18,79 @@ $GroupName = "GroupName"
 $CsvPath = "C:\Temp\Users.csv"
 $LogFile = "C:\Temp\Log_${GroupName}_$(Get-Date -Format yyyyMMdd_HHmmss).txt"
 
-# User list (sAMAccountName)
-#$Users = @(
-#"username1","username3","username3"
-#)
+# Import UPN list (CSV without header)
+$Users = Get-Content $CsvPath |
+    Where-Object { $_.Trim() -ne "" } |
+    ForEach-Object { $_.Trim() } |
+    Sort-Object -Unique
 
-# Import user list (sAMAccountName)
-$Users = Import-Csv -Path $CsvPath -Header SamAccountName
+# Get group once (performance improvement)
+$Group = Get-ADGroup -Identity $GroupName -ErrorAction Stop
 
-# Array
+# Get current group members once (performance improvement)
+$CurrentMembers = Get-ADGroupMember -Identity $GroupName -Recursive |
+    Select-Object -ExpandProperty DistinguishedName
+
+# Arrays
 $Added = @()
+$AlreadyMember = @()
 $NotFound = @()
-$Duplicates = @()
 $Errors = @()
 
-# Process
-foreach ($SamAccount in $Users) {
+foreach ($UPN in $Users) {
 
-    $FoundUsers = Get-ADUser -Filter "SamAccountName -eq '$SamAccount'"
-
-    if ($FoundUsers.Count -eq 0) {
-        Write-Warning "NOT FOUND: $SamAccount"
-        $NotFound += $SamAccount
+    try {
+        # Find user via UPN (fast lookup)
+        $User = Get-ADUser -Identity $UPN -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "NOT FOUND: $UPN"
+        $NotFound += $UPN
         continue
     }
 
-    if ($FoundUsers.Count -gt 1) {
-        Write-Warning "DUPLICATE: $SamAccount"
-        $Duplicates += $SamAccount
+    # Check if already member
+    if ($CurrentMembers -contains $User.DistinguishedName) {
+        Write-Host "Already member: $UPN" -ForegroundColor Yellow
+        $AlreadyMember += $UPN
         continue
     }
 
     try {
-        Add-ADGroupMember -Identity $GroupName -Members $FoundUsers -ErrorAction Stop
-        Write-Host "Added: $SamAccount" -ForegroundColor Green
-        $Added += $SamAccount
+        Add-ADGroupMember -Identity $Group -Members $User -ErrorAction Stop
+        Write-Host "Added: $UPN" -ForegroundColor Green
+        $Added += $UPN
     }
     catch {
-        Write-Warning "ERROR ADDING: $SamAccount"
-        $Errors += "$SamAccount - $($_.Exception.Message)"
+        Write-Warning "ERROR ADDING: $UPN"
+        $Errors += "$UPN - $($_.Exception.Message)"
     }
 }
 
-# Log
+# ---------------- LOG ----------------
 
 $LogContent = @()
 $LogContent += "Execution Date: $(Get-Date)"
 $LogContent += "Group: $GroupName"
+$LogContent += "Total Processed: $($Users.Count)"
 $LogContent += "================================================="
 
-$LogContent += "`nUSERS ADDED SUCCESSFULLY:"
-if ($Added.Count -eq 0) {
-    $LogContent += "None"
-} else {
-    $LogContent += $Added
-}
+$LogContent += "`nUSERS ADDED:"
+$LogContent += if ($Added.Count -eq 0) { "None" } else { $Added }
+
+$LogContent += "`n================================================="
+$LogContent += "ALREADY MEMBERS:"
+$LogContent += if ($AlreadyMember.Count -eq 0) { "None" } else { $AlreadyMember }
 
 $LogContent += "`n================================================="
 $LogContent += "USERS NOT FOUND:"
-if ($NotFound.Count -eq 0) {
-    $LogContent += "None"
-} else {
-    $LogContent += $NotFound
-}
+$LogContent += if ($NotFound.Count -eq 0) { "None" } else { $NotFound }
 
 $LogContent += "`n================================================="
-$LogContent += "DUPLICATE USERS (Multiple AD accounts found):"
-if ($Duplicates.Count -eq 0) {
-    $LogContent += "None"
-} else {
-    $LogContent += $Duplicates
-}
-
-$LogContent += "`n================================================="
-$LogContent += "ERRORS WHILE ADDING TO GROUP:"
-if ($Errors.Count -eq 0) {
-    $LogContent += "None"
-} else {
-    $LogContent += $Errors
-}
+$LogContent += "ERRORS:"
+$LogContent += if ($Errors.Count -eq 0) { "None" } else { $Errors }
 
 $LogContent | Out-File -FilePath $LogFile -Encoding UTF8
 
-Write-Host "`nProcess completed."
+Write-Host "`nProcess completed." -ForegroundColor Cyan
 Write-Host "Log file created at: $LogFile"
