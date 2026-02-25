@@ -40,11 +40,8 @@ $Errors = @()
 foreach ($UPN in $Users) {
 
     try {
-       # Escape single quotes to avoid filter breaking
-       $SafeUPN = $UPN.Replace("'", "''")
-
        # Search by full UPN
-       $User = Get-ADUser -Filter "UserPrincipalName -eq '$SafeUPN'" -ErrorAction SilentlyContinue
+       $User = Get-ADUser -Filter { UserPrincipalName -eq $SafeUPN } -ErrorAction SilentlyContinue
     }
     catch {
         Write-Warning "Not found: $UPN"
