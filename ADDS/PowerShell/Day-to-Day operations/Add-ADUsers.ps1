@@ -78,11 +78,11 @@ $LogContent += "Group: $GroupName"
 $LogContent += "Total Processed: $($Users.Count)"
 $LogContent += "================================================="
 
-$LogContent += "`nUsers Added:"
+$LogContent += "`nUsers added:"
 $LogContent += if ($Added.Count -eq 0) { "None" } else { $Added }
 
 $LogContent += "`n================================================="
-$LogContent += "Already Members:"
+$LogContent += "Already members:"
 $LogContent += if ($AlreadyMember.Count -eq 0) { "None" } else { $AlreadyMember }
 
 $LogContent += "`n================================================="
