@@ -41,7 +41,7 @@ foreach ($UPN in $Users) {
 
     try {
        # Search by full UPN
-       $User = Get-ADUser -Filter { UserPrincipalName -eq $SafeUPN } -ErrorAction SilentlyContinue
+       $User = Get-ADUser -Filter { UserPrincipalName -eq $UPN } -ErrorAction SilentlyContinue
     }
     catch {
         Write-Warning "Not found: $UPN"
