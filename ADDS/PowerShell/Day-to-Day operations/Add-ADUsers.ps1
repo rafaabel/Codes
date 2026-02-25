@@ -12,23 +12,19 @@
 #>
 
 Import-Module ActiveDirectory
-Import-Module ImportExcel
 
 # Variables
 $GroupName = "GroupName"
-$ExcelPath = "C:\Temp\Users.xlsx"
-$LogFile = "C:\Temp\Users_Group_Update_$(Get-Date -Format yyyyMMdd_HHmmss).txt"
+$CsvPath = "C:\Temp\Users.csv"
+$LogFile = "C:\Temp\Log_${GroupName}_$(Get-Date -Format yyyyMMdd_HHmmss).txt"
 
 # User list (sAMAccountName)
 #$Users = @(
 #"username1","username3","username3"
 #)
 
-# Import users from first column 
-$Users = Import-Excel -Path $ExcelPath | ForEach-Object { $_.Column1 }
-
-# Remove empty rows
-$Users = $Users | Where-Object { $_ -and $_.Trim() -ne "" }
+# Import user list (sAMAccountName)
+$Users = Import-Csv -Path $CsvPath -Header SamAccountName
 
 # Array
 $Added = @()
