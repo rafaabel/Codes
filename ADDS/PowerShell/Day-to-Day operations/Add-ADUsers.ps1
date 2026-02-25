@@ -16,7 +16,7 @@ Import-Module ActiveDirectory
 # Variables
 $GroupName = "GroupName"
 $CsvPath = "C:\Temp\Users.csv"
-$LogFile = "C:\Temp\Log_${GroupName}_$(Get-Date -Format yyyyMMdd_HHmmss).txt"
+$LogFile = "C:\Temp\${GroupName} - Log - $(Get-Date -Format yyyyMMdd_HHmmss).txt"
 
 # Import UPN list (CSV without header)
 $Users = Get-Content $CsvPath |
