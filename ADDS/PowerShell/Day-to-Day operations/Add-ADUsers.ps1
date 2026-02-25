@@ -21,7 +21,7 @@ $LogFile = "C:\Temp\Log_${GroupName}_$(Get-Date -Format yyyyMMdd_HHmmss).txt"
 # Import UPN list (CSV without header)
 $Users = Get-Content $CsvPath |
     Where-Object { $_.Trim() -ne "" } |
-    ForEach-Object { $_.Trim() } |
+    ForEach-Object { $_.Trim().TrimEnd(',') } |
     Sort-Object -Unique
 
 # Get group once (performance improvement)
