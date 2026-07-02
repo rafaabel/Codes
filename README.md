@@ -1,6 +1,6 @@
 # Codes
 
-A collection of scripts and tools developed by **Rafael Abel** for Microsoft Identity and Infrastructure administration, automation, and day-to-day IT operations.
+A collection of scripts and tools for Microsoft Identity and Infrastructure administration, automation, and day-to-day IT operations.
 
 This repository brings together PowerShell scripts used for managing **Active Directory**, **Entra ID (Azure AD)**, **Active Directory Certificate Services (AD CS)**, along with study materials and exercises from technical courses.
 
