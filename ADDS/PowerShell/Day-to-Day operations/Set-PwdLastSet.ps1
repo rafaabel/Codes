@@ -1,18 +1,22 @@
 <#
-.Synopsis
-  Script to remove the 'password never expires' flag from the users and change last password set date to current date 
+.SYNOPSIS
+    Forces password expiration for a list of users while granting a 90-day grace period.
+
 .DESCRIPTION
-  Script to remove the 'password never expires' flag from the users and change last password set date to current date
-  Also, it grants a grace period of 90 days from the moment the flag is removed 
-.REQUIREMENTS
-   Check and load Quest ActiveRoles Module if not loaded
-   This scrip must be run as Domain Administrator
-.AUTHOR
-   Walter Porto - walter.porto@effem.com
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   05/15/2023
+    Connects to Active Directory via Quest ActiveRoles, then for each user listed in
+    users.txt, removes the "password never expires" flag and resets pwdLastSet
+    (first to 0, then to -1) to force the password change policy to re-apply from
+    the current date. This effectively grants each user a 90-day grace period from
+    the moment the flag is removed before their password is considered expired.
+
+.NOTES
+    Author       : Walter Porto - walter.porto@effem.com
+                   Rafael Abel - rafael.abel@effem.com
+    Date         : 05/15/2023
+    Requirements : Quest ActiveRoles Module (loaded automatically if missing)
+                   Must be run as Domain Administrator
 #>
+
 
 # Check and load Quest ActiveRoles Module if not loaded
 

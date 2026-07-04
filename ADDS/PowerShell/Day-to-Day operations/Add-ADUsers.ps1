@@ -1,15 +1,21 @@
 <#
-.Synopsis
-   Add users to Active Directory security group given an user list
+.SYNOPSIS
+    Bulk-adds users to an Active Directory security group from a CSV list.
+
 .DESCRIPTION
-   This script is to add users to Active Directory security group given an user list
-.REQUIREMENTS
-   ActiveDirectory Module: https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
-.AUTHOR
-   Rafael Abel
-.DATE
-   2026-02-19
+    Reads a list of UPNs from a CSV file and adds each corresponding user to a target
+    Active Directory security group. Users already members of the group, users not
+    found in AD, and any errors encountered are tracked separately. A detailed log
+    file summarizing the run (added, already member, not found, errors) is generated
+    at the end of execution.
+
+.NOTES
+    Author       : Rafael Abel
+    Date         : 2026-02-19
+    Requirements : ActiveDirectory Module
+                   https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
 #>
+
 
 Import-Module ActiveDirectory
 

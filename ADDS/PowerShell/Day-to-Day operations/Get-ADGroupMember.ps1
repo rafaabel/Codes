@@ -1,15 +1,20 @@
 <#
-.Synopsis
-   Export group members from Active Diretory security group
+.SYNOPSIS
+    Exports the membership of one or more Active Directory security groups to CSV.
+
 .DESCRIPTION
-   This script export group members from Active Diretory security group
-.REQUIREMENTS
-   ActiveDirectory Module: https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
-.AUTHOR
-   Rafael Abel
-.DATE
-   2026-02-18
+    For each group defined in the $groups list, recursively retrieves all user
+    members (expanding nested groups), enriches them with display name, email,
+    enabled status, department, and title, then exports the resulting membership
+    list to an individual CSV file per group under C:\AD_Group_Exports.
+
+.NOTES
+    Author       : Rafael Abel
+    Date         : 2026-02-18
+    Requirements : ActiveDirectory Module
+                   https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
 #>
+
 
 # Import Active Directory module
 Import-Module ActiveDirectory

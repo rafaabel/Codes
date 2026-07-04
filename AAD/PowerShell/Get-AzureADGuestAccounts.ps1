@@ -1,15 +1,21 @@
 <#
-.Synopsis
-   Script to get all Azure AD guest accounts
+.SYNOPSIS
+    Identifies inactive Azure AD / Entra ID guest accounts.
+
 .DESCRIPTION
-   Script to get all Azure AD guest accounts with last sign-in older than x days
-.REQUIREMENTS
-   Install the Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-.AUTHOR
-   Rafael Abel - rgonca10@ext.uber.com
-.DATE
-   03/19/2025
+    Connects to Microsoft Graph and retrieves all guest user accounts, then filters
+    for guests whose last interactive and non-interactive sign-ins occurred more than
+    90 days ago. For each inactive guest, group memberships are resolved and included
+    in the output, which is exported to InactiveGuestUsersWithGroups.csv for review
+    or clean-up purposes.
+
+.NOTES
+    Author       : Rafael Abel - rgonca10@ext.uber.com
+    Date         : 03/19/2025
+    Requirements : Install the Microsoft Graph PowerShell SDK
+                   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
 #>
+
 
 # Connect to Microsoft Graph
 Connect-MgGraph -Scopes "AuditLog.Read.All", "User.Read.All"

@@ -1,15 +1,21 @@
 <#
-.Synopsis
-   Script to get all App Registrations secrets and certificates
+.SYNOPSIS
+    Retrieves Microsoft Entra ID App Registrations with expired secrets or certificates.
+
 .DESCRIPTION
-   Script to get all App Registrations secrets and certificates with expiration date older than x days
-.REQUIREMENTS
-   Install the Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-.AUTHOR
-   Rafael Abel - rgonca10@ext.uber.com
-.DATE
-   03/19/2025
+    Connects to Microsoft Graph and enumerates every app registration in the tenant,
+    inspecting both password credentials (secrets) and key credentials (certificates).
+    Any credential whose expiration date is older than 90 days is flagged, together with
+    the resolved owner of the application. Results are exported to ExpiredApplications.csv,
+    which is consumed downstream by Remove-AppRegistrationsSecretAndCertificates.ps1.
+
+.NOTES
+    Author       : Rafael Abel - rgonca10@ext.uber.com
+    Date         : 03/19/2025
+    Requirements : Install the Microsoft Graph PowerShell SDK
+                   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
 #>
+
 
 # Connect to Microsoft Graph
 Connect-MgGraph -Scopes "Application.Read.All", "User.Read.All"

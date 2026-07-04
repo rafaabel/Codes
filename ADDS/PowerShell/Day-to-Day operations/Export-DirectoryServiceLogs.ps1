@@ -1,16 +1,20 @@
 <#
-.Synopsis
-   Export Directory Service logs
+.SYNOPSIS
+    Exports the Directory Service Windows event log to a timestamped .evtx file.
+
 .DESCRIPTION
-   Export Directory Service logs
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-   ref: https://techcommunity.microsoft.com/blog/coreinfrastructureandsecurityblog/how-to-find-expensive-inefficient-and-long-running-ldap-queries-in-active-direct/257859
-.DATE
-   03/19/2025
+    Creates the C:\LDAP_Performance_Data folder if it does not already exist, then
+    uses wevtutil to export the "Directory Service" event log to a timestamped .evtx
+    file in that folder. Typically used alongside Enable-LDAPPerformanceMetrics.ps1
+    to capture expensive/inefficient LDAP query diagnostics for offline analysis.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 03/19/2025
+    Requirements : This script must be run from any DC
+                   ref: https://techcommunity.microsoft.com/blog/coreinfrastructureandsecurityblog/how-to-find-expensive-inefficient-and-long-running-ldap-queries-in-active-direct/257859
 #>
+
 
 # Create C:\LDAP_Performance_Data folder if does not exist
 if (-not (Test-Path -Path "C:\LDAP_Performance_Data")) {

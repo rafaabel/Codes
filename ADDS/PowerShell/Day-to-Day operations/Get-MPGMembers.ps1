@@ -1,19 +1,25 @@
 
 <#
-.Synopsis
-   Retrieve all users from MPG from on-prem and Azure AD
+.SYNOPSIS
+    Exports members of Most Powerful Groups (MPG) from on-premises AD and Azure AD.
+
 .DESCRIPTION
-   Retrieve all users from MPG from on-prem and Azure AD 
-.REQUIREMENTS
-   This script can be run from any domain joined computer
-   AzureAD module
-   ARS module
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-   Marcos Junior - marcos.junior@effem.com
-.DATE
-   08/03/2022
+    Connects to ARS and Azure AD, then retrieves members of on-premises AD's
+    privileged/admin-count groups (e.g., Domain Admins, Enterprise Admins, Schema
+    Admins) across each configured domain, as well as members of key Azure AD
+    privileged directory roles (e.g., Global Administrator, Privileged Role
+    Administrator). Results are written to a multi-tab Excel workbook, one tab per
+    domain plus a dedicated "Azure AD" tab.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+                   Marcos Junior - marcos.junior@effem.com
+    Date         : 08/03/2022
+    Requirements : This script can be run from any domain joined computer
+                   AzureAD module
+                   ARS (ActiveRolesManagementShell) module
 #>
+
 
 #Get members from on-prem AD Most Powerfull Groups (MPG)
 Import-Module ActiveRolesManagementShell

@@ -1,15 +1,19 @@
 <#
-.Synopsis
-   Get domain objects by ID from forest
+.SYNOPSIS
+    Locates an Active Directory object by its ObjectGUID across every domain in the forest.
+
 .DESCRIPTION
-   Get domain objects by ID from forest
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   08/05/2022
+    Iterates through all domains in the current Active Directory forest and searches
+    each one for an object matching the specified ObjectGUID, displaying full object
+    properties for any match found. Useful when the domain of a known object GUID is
+    unknown.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 08/05/2022
+    Requirements : This script must be run from any DC
 #>
+
 
 $guid = "OBJECTGUID"
 

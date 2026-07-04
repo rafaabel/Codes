@@ -1,18 +1,27 @@
 <#
-.Synopsis
-   Monitor Entra ID Directory Size Quota and send notifications
+.SYNOPSIS
+    Monitors the Entra ID directory size quota and alerts by email as usage grows.
+
 .DESCRIPTION
-   Check Entra ID Directory Size Quota and notify users via email using Postman
-.REQUIREMENTS
-   App Registrations: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
-   Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-   SecretManagement and SecretStore modules: https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
-   Postman OAuth 2.0: https://learning.postman.com/docs/sending-requests/authorization/oauth-20/
-.AUTHOR
-   Rafael Abel - rgonca10@ext.uber.com
-.DATE
-   04/10/2025
+    Authenticates to Microsoft Graph using a client secret retrieved from the local
+    SecretStore vault, then retrieves the tenant's directorySizeQuota (used vs. total
+    object count). Depending on the calculated usage percentage (<=90%, 90-95%,
+    95-100%, or over 100%), a correspondingly worded HTML email is generated and sent
+    through a Postman OAuth2-authenticated email endpoint.
+
+.NOTES
+    Author       : Rafael Abel - rgonca10@ext.uber.com
+    Date         : 04/10/2025
+    Requirements : App Registrations
+                   https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
+                   Microsoft Graph PowerShell SDK
+                   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
+                   SecretManagement and SecretStore modules
+                   https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
+                   Postman OAuth 2.0
+                   https://learning.postman.com/docs/sending-requests/authorization/oauth-20/
 #>
+
 
 # Retrieve SecretStore vault password and open it
 $securedPasswordPath = "C:\Task Scheduler scripts\passwd.xml"

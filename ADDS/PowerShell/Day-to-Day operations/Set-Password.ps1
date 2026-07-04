@@ -1,15 +1,19 @@
 <#
-.Synopsis
-   Reset passwords
+.SYNOPSIS
+    Resets Active Directory account passwords for a list of users.
+
 .DESCRIPTION
-   Reset passwords given a list of users
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   05/18/2023
+    Imports a CSV list of SamAccountNames and, for each user, generates a new
+    password (via an external password-generation script) and resets the account
+    password using Set-ADAccountPassword. Successes and failures are logged both to
+    the console and to a log file.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 05/18/2023
+    Requirements : This script must be run from any DC
 #>
+
 Import-Module ActiveDirectory
 
 $users = Import-Csv -Path "F:\Temp\file.csv"

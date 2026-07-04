@@ -1,15 +1,21 @@
 <#
-.Synopsis
-   Script to remove all App Registrations secrets and certificates
+.SYNOPSIS
+    Removes expired App Registration secrets and certificates identified previously.
+
 .DESCRIPTION
-   Script to remove all App Registrations secrets and certificates with expiration date older than x days
-.REQUIREMENTS
-   Install the Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-.AUTHOR
-   Rafael Abel - rgonca10@ext.uber.com
-.DATE
-   03/19/2025
+    Reads the ExpiredApplications.csv file produced by
+    Get-AppRegistrationsSecretAndCertificates.ps1, connects to Microsoft Graph, and
+    deletes each listed expired secret (PasswordCredential) or certificate
+    (KeyCredential) from its corresponding application registration. A summary of all
+    successfully deleted credentials is exported to DeletedExpiredCredentials.csv.
+
+.NOTES
+    Author       : Rafael Abel - rgonca10@ext.uber.com
+    Date         : 03/19/2025
+    Requirements : Install the Microsoft Graph PowerShell SDK
+                   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
 #>
+
 
 # Connect to Microsoft Graph API
 Connect-MgGraph -Scopes "Application.ReadWrite.All"

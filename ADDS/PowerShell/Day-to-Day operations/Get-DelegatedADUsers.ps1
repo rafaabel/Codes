@@ -1,17 +1,21 @@
 
 <#
-.Synopsis
-   Script to find out all the delegations in Active Directory
+.SYNOPSIS
+    Documents non-inherited Active Directory OU delegation (ACL) entries.
+
 .DESCRIPTION
-   You can extract an overview of your delegation and maybe identify some clean-up candidates. A .txt file is generated in the user`s desktop. 
-   Finally, you rename the file to .csv and open in Excel as ";" delimited
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   ref: https://www.easy365manager.com/how-to-document-ou-delegation/
-.DATE
-   09/09/2021
+    Enumerates every Organizational Unit in the domain and inspects its ACL for
+    non-inherited access control entries, writing each finding (OU path, identity,
+    rights, and access type) to a semicolon-delimited text file. Rename the output
+    file's extension to .csv to open it directly in Excel for delegation review and
+    clean-up candidate identification.
+
+.NOTES
+    Author       : ref: https://www.easy365manager.com/how-to-document-ou-delegation/
+    Date         : 09/09/2021
+    Requirements : This script must be run from any DC
 #>
+
 
 # Set up output file
 $file = "C:\Temp\file.txt"

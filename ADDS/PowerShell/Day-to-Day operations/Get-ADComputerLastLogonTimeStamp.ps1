@@ -1,17 +1,23 @@
 <#
-.Synopsis
-   Script to get last logon time by computer object
+.SYNOPSIS
+    Retrieves the last logon timestamp for a list of Active Directory computer objects.
+
 .DESCRIPTION
-   Script to get last logon time by computer object from spreadsheet
-.REQUIREMENTS
-   This script can be run from any domain joined computer
-   The column name of the spreadhsheet must be named "DistinguishedName" end each cell must be filled with the computer object DN
-   Alternatively, you can use an array of computers. In this case, just remove $computer.DistinguishedName under $ADComputer variable
-.AUTHOR
-   ref: https://www.netwrix.com/how_to_get_local_group_membership_report.html
-.DATE
-   09/21/2021
+    Imports a CSV file of computer distinguished names and, for each computer object,
+    retrieves its LastLogonTimeStamp (converted to a readable date/time via w32tm)
+    along with its operating system. Results are exported to a CSV file for auditing
+    inactive or stale computer accounts.
+
+.NOTES
+    Author       : ref: https://www.netwrix.com/how_to_get_local_group_membership_report.html
+    Date         : 09/21/2021
+    Requirements : This script can be run from any domain joined computer
+                   The CSV column must be named "DistinguishedName", with each cell
+                   containing the computer object's DN. Alternatively, an array of
+                   computer names can be used instead (remove ".DistinguishedName"
+                   from the $ADComputer assignment).
 #>
+
 
 Import-Module ActiveDirectory
 

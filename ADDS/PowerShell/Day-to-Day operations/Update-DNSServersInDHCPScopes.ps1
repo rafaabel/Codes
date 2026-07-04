@@ -1,13 +1,19 @@
 <#
-.Synopsis
-   Script to get and set DNS servers values in DHCP scopes
+.SYNOPSIS
+    Validates and updates the DNS Servers (option 006) value across DHCP scopes.
+
 .DESCRIPTION
-   Script to get and set DNS servers values in DHCP scopes
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Anatoly Ivanitchev - Anatoly.Ivanitchev@effem.com
+    Reads a CSV file listing DHCP server names and scope IDs, first displaying the
+    current DNS Servers (option 006) value for each scope. A second section then
+    reads the desired new DNS server values from the same CSV structure and applies
+    them via Set-DhcpServerv4OptionValue (currently running with -WhatIf for safe
+    validation before committing changes).
+
+.NOTES
+    Author       : Anatoly Ivanitchev - Anatoly.Ivanitchev@effem.com
+    Requirements : This script must be run from any DC
 #>
+
 
 #Run below script to validate the DNS servers for all DHCP scopes
 

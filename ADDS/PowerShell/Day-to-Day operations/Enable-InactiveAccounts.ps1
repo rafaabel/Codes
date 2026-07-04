@@ -1,15 +1,18 @@
 <#
-.Synopsis
-   Enable all inactive accounts from spreadsheet
+.SYNOPSIS
+    Enables Active Directory accounts listed in a CSV spreadsheet.
+
 .DESCRIPTION
-   Enable all inactive accounts from spreadsheet
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   02/14/2022
+    Imports a CSV file of SamAccountNames and enables each corresponding Active
+    Directory user account with Enable-ADAccount, writing a confirmation message
+    to the console for every account processed.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 02/14/2022
+    Requirements : This script must be run from any DC
 #>
+
 
 $users = Import-Csv -path "C:\Temp\file.csv"
 

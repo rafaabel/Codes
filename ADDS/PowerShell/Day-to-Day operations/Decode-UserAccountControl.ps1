@@ -1,15 +1,19 @@
 <#
-.Synopsis
-   Decode UserAccountControl values
+.SYNOPSIS
+    Decodes an Active Directory userAccountControl integer into readable flag names.
+
 .DESCRIPTION
-   Decode UserAccountControl values
-.REQUIREMENTS
-   This script can be run from any computer
-.AUTHOR
-   ref: http://woshub.com/decoding-ad-useraccountcontrol-value/
-.DATE
-   05/08/2022
+    Defines the DecodeUserAccountControl function, which takes the raw integer value
+    of the userAccountControl attribute and returns the list of UAC property flags
+    (e.g., ACCOUNTDISABLE, DONT_EXPIRE_PASSWORD, SMARTCARD_REQUIRED) that are set,
+    based on bitwise comparison against each flag's corresponding power of two.
+
+.NOTES
+    Author       : ref: http://woshub.com/decoding-ad-useraccountcontrol-value/
+    Date         : 05/08/2022
+    Requirements : This script can be run from any computer
 #>
+
 Function DecodeUserAccountControl ([int]$UAC) {
    $UACPropertyFlags = @(
       "SCRIPT",

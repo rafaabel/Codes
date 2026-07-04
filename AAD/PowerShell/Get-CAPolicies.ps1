@@ -1,15 +1,23 @@
 
 <#
-.Synopsis
-   Get CA policies details from Entra ID
+.SYNOPSIS
+    Exports Conditional Access (CA) policy details from Entra ID.
+
 .DESCRIPTION
-   Get CA policies details from Entra ID
-.REQUIREMENTS
-   Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-   Rafael Abel - rgonca10@ext.uber.com
-.DATE
-   08/15/2025
+    Connects to Microsoft Graph and retrieves every Conditional Access policy configured
+    in the tenant. For each policy, all referenced object IDs (users, groups, roles,
+    applications, and named locations) are resolved to their friendly display names.
+    The results are pivoted so that each policy becomes a column and each configuration
+    property becomes a row, then exported to CA-Policies.csv for easier side-by-side
+    comparison and auditing.
+
+.NOTES
+    Author       : Rafael Abel - rgonca10@ext.uber.com
+    Date         : 08/15/2025
+    Requirements : Microsoft Graph PowerShell SDK
+                   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
 #>
+
 
 Import-Module Microsoft.Graph.Identity.SignIns
 Import-Module Microsoft.Graph.Applications

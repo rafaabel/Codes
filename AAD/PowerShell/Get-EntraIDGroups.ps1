@@ -1,17 +1,21 @@
 <#
-.Synopsis
-   Export Entra ID cloud-only group details
+.SYNOPSIS
+    Exports Entra ID cloud-only group details for reporting and auditing.
+
 .DESCRIPTION
-   This script connects to Microsoft Graph and exports information only from Entra ID cloud-only groups (excluding AD-synced groups)
-   It includes owners, type, source, role assignment eligibility, teams enablement, expiration, and processing status
-   The output is saved to a CSV file for reporting and auditing purposes
-.REQUIREMENTS
-   Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-.AUTHOR
-   Rafael Abel - rgonca10@ext.uber.com
-.DATE
-   09/15/2025
+    Connects to Microsoft Graph and retrieves all groups that are not synchronized
+    from on-premises Active Directory. For each cloud-only group, resolves its owners,
+    source (Microsoft 365 Group, Security Group, or Other), membership type
+    (Assigned/Dynamic), Teams enablement, role assignment eligibility, and expiration
+    details. The consolidated report is exported to EntraIDGroups.csv.
+
+.NOTES
+    Author       : Rafael Abel - rgonca10@ext.uber.com
+    Date         : 09/15/2025
+    Requirements : Microsoft Graph PowerShell SDK
+                   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
 #>
+
 
 # Connect to Microsoft Graph
 Connect-MgGraph -Scopes "Group.Read.All","Directory.Read.All"

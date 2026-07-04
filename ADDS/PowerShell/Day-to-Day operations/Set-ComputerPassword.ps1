@@ -1,16 +1,20 @@
 
 <#
-.Synopsis
-   Reset computer object password
+.SYNOPSIS
+    Resets the local machine account password on a list of remote computers.
+
 .DESCRIPTION
-   Reset computer object password
-.REQUIREMENTS
-   To access the remote machine and run the script, you must have the local admin rights and domain admin rights
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   05/08/2022
+    Defines the Reset-ADComputerMachinePassword function, which imports a list of
+    computer names from a CSV file and, for each one, remotely invokes
+    Reset-ComputerMachinePassword using local and domain administrator credentials.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 05/08/2022
+    Requirements : To access the remote machine and run the script, you must have
+                   local admin rights and domain admin rights
 #>
+
 
 function Reset-ADComputerMachinePassword {
    [CmdletBinding(SupportsShouldProcess)]

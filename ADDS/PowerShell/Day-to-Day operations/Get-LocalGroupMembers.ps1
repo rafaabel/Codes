@@ -1,15 +1,19 @@
 <#
-.Synopsis
-   Script to get all users by local group
+.SYNOPSIS
+    Reports local group membership on a computer, including nested domain accounts.
+
 .DESCRIPTION
-   Script to get all users by local group. There is no members in the group, it is not listed in this script
-.REQUIREMENTS
-   This script can be run from any domain joined computer
-.AUTHOR
-   ref: https://www.netwrix.com/how_to_get_local_group_membership_report.html
-.DATE
-   09/21/2021
+    Uses ADSI to enumerate every local group on the target computer and lists its
+    members, distinguishing between local and domain accounts. Empty groups (with
+    no members) are not included in the output. Results are exported to a
+    semicolon-delimited, UTF-8 CSV file named after the computer and timestamp.
+
+.NOTES
+    Author       : ref: https://www.netwrix.com/how_to_get_local_group_membership_report.html
+    Date         : 09/21/2021
+    Requirements : This script can be run from any domain joined computer
 #>
+
 
 $strComputer = Get-Content env:computername #Enter the name of the target computer, localhost is used by default
 Write-Host "Computer: $strComputer"

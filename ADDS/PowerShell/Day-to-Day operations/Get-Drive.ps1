@@ -1,22 +1,27 @@
 <#
-.Synopsis
-   Script to check hardware requirements for Domain Controllers
+.SYNOPSIS
+    Validates local drive sizes against pre-defined Domain Controller hardware requirements.
+
 .DESCRIPTION
-   Check hardware requirements according to the pre-defined values
-   Technical terms
+    Checks the C:, D:, E:, and F: local drives against a set of minimum size
+    thresholds (in GB) required for a server to be promoted to Domain Controller,
+    reporting a Pass/Fail result for each drive to the console.
+
+    Technical terms:
         RWDC - Read Write Domain Controller
-        RODC - Ready Only Domain Controller
+        RODC - Read Only Domain Controller
         ADDS - Active Directory Domain Services
-        DNS - Domain Name System
-        OS - Operating System
-        VM - Virtual Machine
-.REQUIREMENTS
-   This script must be run locally from every Windows Server planned to be Domain Controller
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   03/24/2022
+        DNS  - Domain Name System
+        OS   - Operating System
+        VM   - Virtual Machine
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 03/24/2022
+    Requirements : This script must be run locally from every Windows Server
+                   planned to be a Domain Controller
 #>
+
 
 #Declare Global Variables
 $C = 139.000000000000

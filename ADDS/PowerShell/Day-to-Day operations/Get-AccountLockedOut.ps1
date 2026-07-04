@@ -1,15 +1,19 @@
 <#
-.Synopsis
-   Search for account lock out origin
+.SYNOPSIS
+    Identifies the source of an Active Directory account lockout.
+
 .DESCRIPTION
-   Search for account lock out origin
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   02/15/2023
+    Prompts for a username, locates the PDC Emulator for the domain, and queries the
+    PDC's Security event log for failed logon events (Event ID 4625) matching the
+    user's SID. Matching events are formatted to show the domain controller, event
+    ID, lockout timestamp, message, and lockout source (originating computer/IP).
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 02/15/2023
+    Requirements : This script must be run from any DC
 #>
+
 
 Import-Module ActiveDirectory
 $UserName = Read-Host "Please enter username"

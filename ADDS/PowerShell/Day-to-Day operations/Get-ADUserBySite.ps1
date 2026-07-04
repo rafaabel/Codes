@@ -1,15 +1,19 @@
 <#
-.Synopsis
-   Get domain users by site
+.SYNOPSIS
+    Exports Active Directory user details filtered by site location to Excel.
+
 .DESCRIPTION
-   Disable all inactive accounts from spreadsheet
-.REQUIREMENTS
-   Get domain users by site
-.AUTHOR
-   Marcos Junior - marcos.junior@effem.com
-.DATE
-   08/05/2022
+    Queries all enabled AD user accounts whose site-location attribute
+    (extensionAttribute15) matches a given site code, then writes each user's name,
+    contact details, employee ID/type, site/region/segment, and up to two levels of
+    line management into a new Excel workbook.
+
+.NOTES
+    Author       : Marcos Junior - marcos.junior@effem.com
+    Date         : 08/05/2022
+    Requirements : Quest ActiveRoles (Get-QADUser) module and Microsoft Excel installed
 #>
+
 
 #Inform location where file will be generated
 $outputFile = "C:\Temp\file.xlsx"

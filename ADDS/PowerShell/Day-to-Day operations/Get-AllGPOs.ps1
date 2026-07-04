@@ -1,15 +1,19 @@
 <#
-.Synopsis
-   Search for strings in all GPOs applied to the domain
+.SYNOPSIS
+    Searches all Group Policy Objects in the domain for a given text string.
+
 .DESCRIPTION
-   Search for strings in all GPOs applied to the domain
-.REQUIREMENTSclear
-   This script can be run from any domain joined computer
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   05/08/2022
+    Prompts for a search string, retrieves every GPO applied to the current domain,
+    and inspects each GPO's XML report for a match. Matching and non-matching GPOs
+    are reported to the console as they are processed, followed by a final summary
+    of all GPOs where the string was found.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 05/08/2022
+    Requirements : This script can be run from any domain joined computer
 #>
+
 
 # Get the string we want to search for 
 $string = Read-Host -Prompt "What string do you want to search for?" 

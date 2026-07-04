@@ -1,16 +1,21 @@
 <#
-.Synopsis
-   Enable LDAP Performance metrics
+.SYNOPSIS
+    Enables LDAP performance diagnostics logging on a Domain Controller.
+
 .DESCRIPTION
-   Enable LDAP Performance metrics
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-   ref: https://techcommunity.microsoft.com/blog/coreinfrastructureandsecurityblog/how-to-find-expensive-inefficient-and-long-running-ldap-queries-in-active-direct/257859
-.DATE
-   03/19/2025
+    Backs up the local registry, then interactively checks and updates the NTDS
+    Diagnostics "15 Field Engineering" value and the NTDS Parameters expensive/
+    inefficient search thresholds. This exposes verbose LDAP query performance data
+    (expensive, inefficient, and long-running searches) in the Directory Service
+    event log for troubleshooting purposes.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 03/19/2025
+    Requirements : This script must be run from any DC
+                   ref: https://techcommunity.microsoft.com/blog/coreinfrastructureandsecurityblog/how-to-find-expensive-inefficient-and-long-running-ldap-queries-in-active-direct/257859
 #>
+
 
 # Create C:\LDAP_Performance_Data folder if does not exist
 

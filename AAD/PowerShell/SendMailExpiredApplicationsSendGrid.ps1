@@ -1,18 +1,27 @@
- <#
-.Synopsis
-   Retrieve App Registrations secrets and certificates
+<#
+.SYNOPSIS
+    Notifies application owners of soon-to-expire secrets and certificates via SendGrid email.
+
 .DESCRIPTION
-   Check App Registrations secrets and certificates that are going to expire soon and notify users via email using SendGrid API
-.REQUIREMENTS
-   App Registrations: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
-   Microsoft Graph PowerShell SDK: https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
-   SecretManagement and SecretStore modules: https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
-   SendGrid API Key: https://sendgrid.com/
-.AUTHOR
-   Rafael Abel - rgonca10@ext.uber.com
-.DATE
-   03/18/2025
+    Authenticates to Microsoft Graph using a client secret retrieved from the local
+    SecretStore vault, then scans every App Registration for password credentials
+    (secrets) and key credentials (certificates) expiring within the next 60 days.
+    The findings are formatted into an HTML table and sent as an email notification
+    through the SendGrid API.
+
+.NOTES
+    Author       : Rafael Abel - rgonca10@ext.uber.com
+    Date         : 03/18/2025
+    Requirements : App Registrations
+                   https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate%2Cexpose-a-web-api
+                   Microsoft Graph PowerShell SDK
+                   https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0
+                   SecretManagement and SecretStore modules
+                   https://learn.microsoft.com/en-us/powershell/utility-modules/secretmanagement/get-started/using-secretstore?view=ps-modules
+                   SendGrid API Key
+                   https://sendgrid.com/
 #>
+
 
 # Retrieve SecretStore vault password and open it
 $securedPasswordPath = "C:\Task Scheduler scripts\passwd.xml"

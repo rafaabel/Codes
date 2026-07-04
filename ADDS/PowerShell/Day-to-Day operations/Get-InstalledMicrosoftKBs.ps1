@@ -1,16 +1,20 @@
 
 <#
-.Synopsis
-   Retrieve KB installed in every Domain Controller from forest
+.SYNOPSIS
+    Verifies whether specified Microsoft KB updates are installed on all Domain Controllers.
+
 .DESCRIPTION
-   The script verifies whether a particular update is installed
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   05/11/2022
+    Enumerates every Domain Controller and checks each one's installed hotfixes
+    against a defined list of KB numbers, reporting the matching KB IDs and their
+    installation dates. Results are exported to a CSV file for patch compliance
+    tracking.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 05/11/2022
+    Requirements : This script must be run from any DC
 #>
+
 
 $DCs = Get-ADDomainController -Filter * | Select-Object -ExpandProperty Name
 $Patches = "KB5018419" 

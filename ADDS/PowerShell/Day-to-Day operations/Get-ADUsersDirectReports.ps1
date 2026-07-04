@@ -1,16 +1,20 @@
 <#
-.Synopsis
-   Script to get all direct reports
+.SYNOPSIS
+    Recursively exports all direct and indirect reports of a given user to a CSV file.
+
 .DESCRIPTION
-   Script to get all direct reports starting from a specific user in a recursive way
-.REQUIREMENTS
-   This script can be run from any domain joined computer
-.AUTHOR
-   Marcos Junior - marcos.junior@effem.com
-   Rafael Abel - rafael.abel@effem.com
-.DATE
-   10/06/2021
+    Connects to ARS (Active Roles Server) and, starting from a specified target user,
+    walks the DirectReports chain recursively to build a full list of all
+    subordinates in the reporting hierarchy. Each report's employee ID, name, mail,
+    site, office location, and department are then exported to a CSV file.
+
+.NOTES
+    Author       : Marcos Junior - marcos.junior@effem.com
+                   Rafael Abel - rafael.abel@effem.com
+    Date         : 10/06/2021
+    Requirements : This script can be run from any domain joined computer
 #>
+
 
 #Connection to ARS
 Connect-QADService -proxy 

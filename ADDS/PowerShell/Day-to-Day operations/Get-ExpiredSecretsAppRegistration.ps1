@@ -1,19 +1,22 @@
 <#
-.Synopsis
-   This PowerShell script exports all app registrations with secrets and certificates expiring in the next X days
+.SYNOPSIS
+    Exports App Registrations with secrets or certificates expiring within 30 days.
+
 .DESCRIPTION
-   This PowerShell script exports all app registrations with secrets and certificates expiring in the next X days. 
-   It also includes the ones that are expired, if you choose so. The script exports the app registrations along with their owners. 
-   It exports the data for the specified apps from your directory. The output is saved in a CSV file.
-.REQUIREMENTS
-   Connect to Entra ID as Global Administrator
-.AUTHOR
-   Microsoft
-   ref: https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/scripts/powershell-export-apps-with-expiring-secrets
-   ref: https://stackoverflow.com/questions/79031777/export-app-registrations-with-expiring-secrets-and-certificates-and-send-alert-i
-.DATE
-   02/16/2022
+    Connects to Microsoft Graph and retrieves every application registration in the
+    tenant, checking each one's password credentials (secrets) and key credentials
+    (certificates) for an expiration date within the next 30 days. For each matching
+    credential, the application owner is resolved and the finding is added to the
+    in-memory log, which can then be exported to a CSV file for review.
+
+.NOTES
+    Author       : Microsoft
+                   ref: https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/scripts/powershell-export-apps-with-expiring-secrets
+                   ref: https://stackoverflow.com/questions/79031777/export-app-registrations-with-expiring-secrets-and-certificates-and-send-alert-i
+    Date         : 02/16/2022
+    Requirements : Connect to Entra ID as Global Administrator
 #>
+
 
 Connect-MgGraph -Scopes 'Application.Read.All'
 

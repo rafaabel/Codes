@@ -1,15 +1,20 @@
 <#
-.Synopsis
-   Copy group members from one Active Directory security group to another
+.SYNOPSIS
+    Copies user members from one Active Directory security group to another.
+
 .DESCRIPTION
-   This script copy group members from one Active Directory security group to another
-.REQUIREMENTS
-   ActiveDirectory Module: https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
-.AUTHOR
-   Rafael Abel
-.DATE
-   2026-02-12
+    Retrieves all user members (recursively, including nested groups) from a source
+    Active Directory security group and adds any that are not already members to a
+    target security group. Progress and outcomes (added, already member, or failed)
+    are reported to the console for each user processed.
+
+.NOTES
+    Author       : Rafael Abel
+    Date         : 2026-02-12
+    Requirements : ActiveDirectory Module
+                   https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2025-ps
 #>
+
 
 Import-Module ActiveDirectory
 

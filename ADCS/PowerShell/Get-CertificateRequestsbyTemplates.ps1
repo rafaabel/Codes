@@ -1,16 +1,20 @@
 <#
-.Synopsis
-   Retrieve certificates requests
+.SYNOPSIS
+    Retrieves issued certificate requests grouped by Certificate Template.
+
 .DESCRIPTION
-   Retrieve certificates requests by Certificate Templates
-.REQUIREMENTS
-   This script must be run from any DC
-.AUTHOR
-   Rafael Abel - rafael.abel@effem.com
-   https://www.pkisolutions.com/tools/pspki/
-.DATE
-   03/11/2023
+    Uses the PSPKI module to query a specified Certification Authority for all
+    certificates issued within the last 2 years, then resolves each certificate's
+    template OID to its friendly name. The results are exported to a CSV file for
+    reporting on certificate template usage.
+
+.NOTES
+    Author       : Rafael Abel - rafael.abel@effem.com
+    Date         : 03/11/2023
+    Requirements : This script must be run from any DC
+                   PSPKI module: https://www.pkisolutions.com/tools/pspki/
 #>
+
 
 #Import PSKI Module
 Import-Module PSPKI

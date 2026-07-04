@@ -1,13 +1,21 @@
 <#
-.Synopsis
-    Remove AD users from group
-.REQUIREMENTS
-    This script must be run from any DC
-.AUTHOR
-    ref: https://www.alitajran.com/remove-users-from-group-powershell/#:~:text=Users%20PowerShell%20script.-, Bulk%20remove%20users%20from%20group%20with%20CSV%20file, users%20in%20the%20CSV%20file.
-.DATE
-    02 / 08 / 2023
+.SYNOPSIS
+    Bulk-removes Active Directory users from a security group based on a CSV list.
+
+.DESCRIPTION
+    Imports a list of SamAccountNames from a CSV file and, for each user, checks
+    current group membership before removing them from a specified target group.
+    Users not found in the source data or not currently members of the target group
+    are reported separately. All actions are logged to a transcript file (note: the
+    Remove-ADGroupMember call currently runs with -WhatIf for safety and should be
+    removed once validated).
+
+.NOTES
+    Author       : ref: https://www.alitajran.com/remove-users-from-group-powershell/
+    Date         : 02/08/2023
+    Requirements : This script must be run from any DC
 #>
+
 
 # Start transcript
 Start-Transcript -Path "F:\Temp\Remove-ADUsers.log" -Append
